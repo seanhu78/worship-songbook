@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>10.31 CCCFC Fall Festival 敬拜歌谱册</title>
+<style>
+  :root{
+    --bg:#f6f3ec;
+    --panel:#ffffff;
+    --text:#2b2520;
+    --muted:#80766a;
+    --accent:#a9532f;
+    --accent2:#5c7a5a;
+    --border:#e3dccb;
+    --chord:#a9532f;
+    --chip-bg:#efe6d4;
+    --shadow:0 2px 10px rgba(60,45,20,0.08);
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --serif: "Songti SC","Noto Serif SC", "PingFang SC", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  }
+  [data-theme="dark"]{
+    --bg:#15130f;
+    --panel:#211d17;
+    --text:#f1ece1;
+    --muted:#a69a87;
+    --accent:#e79a6b;
+    --accent2:#8fb98c;
+    --border:#39332a;
+    --chord:#f0b084;
+    --chip-bg:#2c2619;
+    --shadow:0 2px 14px rgba(0,0,0,0.5);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--serif);
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:60px;
+  }
+  a{color:var(--accent);}
+  header.topbar{
+    position:sticky; top:0; z-index:50;
+    background:var(--panel);
+    border-bottom:1px solid var(--border);
+    box-shadow:var(--shadow);
+    padding:10px 14px;
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  }
+  header.topbar .brand{
+    font-weight:700; font-size:15px; cursor:pointer; white-space:nowrap;
+  }
+  header.topbar .brand small{display:block; font-weight:400; color:var(--muted); font-size:11px;}
+  header.topbar .spacer{flex:1;}
+  .iconbtn{
+    border:1px solid var(--border); background:var(--panel); color:var(--text);
+    border-radius:8px; padding:7px 10px; cursor:pointer; font-size:14px; line-height:1;
+  }
+  .iconbtn:active{transform:translateY(1px);}
+  #search{
+    border:1px solid var(--border); border-radius:8px; padding:8px 10px;
+    font-size:14px; background:var(--bg); color:var(--text); min-width:0; flex:1; max-width:260px;
+  }
+  main{max-width:900px; margin:0 auto; padding:14px;}
+
+  /* --- Song list --- */
+  .songcard{
+    background:var(--panel); border:1px solid var(--border); border-radius:12px;
+    padding:12px 14px; margin-bottom:9px; box-shadow:var(--shadow);
+    cursor:pointer; display:flex; align-items:center; gap:12px;
+  }
+  .songcard:active{transform:scale(0.995);}
+  .songcard .num{
+    font-family:var(--mono); color:var(--muted); font-size:13px; width:26px; flex:none;
+  }
+  .songcard .titles{flex:1; min-width:0;}
+  .songcard .titles .en{font-weight:700; font-size:15.5px;}
+  .songcard .titles .cn{color:var(--muted); font-size:13px; margin-top:1px;}
+  .songcard .tags{flex:none; text-align:right; font-size:11.5px; color:var(--muted); line-height:1.5;}
+  .songcard .tags .key{
+    display:inline-block; background:var(--chip-bg); color:var(--accent); font-weight:700;
+    border-radius:6px; padding:2px 7px; font-family:var(--mono);
+  }
+  .emptystate{text-align:center; color:var(--muted); padding:40px 10px;}
+
+  /* --- Song detail --- */
+  .backrow{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+  .navbtns{display:flex; gap:6px;}
+  .songhead h1{font-size:21px; margin:2px 0 0;}
+  .songhead .cn{color:var(--muted); font-size:16px; margin-top:2px;}
+  .metarow{display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 2px;}
+  .chip{
+    background:var(--chip-bg); border-radius:999px; padding:4px 10px; font-size:12px; color:var(--text);
+  }
+  .credits{color:var(--muted); font-size:12.5px; margin:6px 0 0; line-height:1.6;}
+  .credits a{word-break:break-word;}
+
+  .keybar{
+    position:sticky; top:52px; z-index:40;
+    background:var(--panel); border:1px solid var(--border); border-radius:12px;
+    box-shadow:var(--shadow);
+    padding:10px 12px; margin:14px 0; display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  }
+  .keybar .label{font-size:12px; color:var(--muted);}
+  .keybar select{
+    font-family:var(--mono); font-weight:700; font-size:15px; color:var(--accent);
+    border:1px solid var(--border); border-radius:8px; padding:6px 8px; background:var(--bg);
+  }
+  .steplabel{font-family:var(--mono); font-weight:700; font-size:13px; min-width:34px; text-align:center;}
+  .capo-hint{font-size:12px; color:var(--accent2); flex:1 1 100%; margin-top:2px;}
+  .fontctrl{display:flex; gap:4px; margin-left:auto;}
+  .modebar{display:flex; align-items:center; gap:8px; flex-wrap:wrap; flex:1 1 100%; margin-top:4px; padding-top:8px; border-top:1px solid var(--border);}
+  .segctrl{display:flex; border:1px solid var(--border); border-radius:8px; overflow:hidden;}
+  .segbtn{
+    border:none; background:var(--panel); color:var(--text); padding:7px 10px; font-size:12.5px; cursor:pointer;
+  }
+  .segbtn + .segbtn{border-left:1px solid var(--border);}
+  .segbtn.active{background:var(--accent); color:#fff;}
+
+  .section{margin:18px 0;}
+  .section .seclabel{
+    font-size:12.5px; font-weight:700; color:var(--accent2);
+    text-transform:none; margin-bottom:6px; letter-spacing:.2px;
+  }
+  .line{
+    overflow-x:auto; -webkit-overflow-scrolling:touch; margin-bottom:2px;
+    padding-bottom:2px;
+  }
+  .line .chordrow, .line .lyricrow{
+    white-space:pre; font-family:var(--mono); line-height:1.35;
+  }
+  .line .chordrow{color:var(--chord); font-weight:700; min-height:1.3em;}
+  .line .chordrow .ch{color:var(--chord);}
+  .line .lyricrow{color:var(--text);}
+  .chordonly .lyricrow{display:none;}
+
+  .songfoot{display:flex; justify-content:space-between; margin-top:26px; gap:10px;}
+  .bigbtn{
+    flex:1; text-align:center; background:var(--panel); border:1px solid var(--border);
+    border-radius:10px; padding:12px; cursor:pointer; font-size:14px;
+  }
+
+  /* --- Capo table --- */
+  table.capo{width:100%; border-collapse:collapse; font-size:13px; margin-top:10px;}
+  table.capo th, table.capo td{
+    border:1px solid var(--border); padding:7px 8px; text-align:center; font-family:var(--mono);
+  }
+  table.capo th{background:var(--chip-bg);}
+  .note{color:var(--muted); font-size:13px; line-height:1.6; margin:10px 0;}
+
+  footer.app{text-align:center; color:var(--muted); font-size:11.5px; padding:20px 14px;}
+
+  @media print{
+    header.topbar, .keybar .fontctrl, .navbtns, .songfoot, #search, .iconbtn{display:none !important;}
+    .keybar{position:static; box-shadow:none;}
+    body{background:#fff; color:#000;}
+    .line{overflow:visible;}
+  }
+</style>
+</head>
+<body data-theme="light">
+
+<header class="topbar">
+  <div class="brand" onclick="location.hash='#/'">🎸 10.31 Fall Festival 敬拜歌谱
+    <small>28 首 · 点歌名查看 · 任意变调</small>
+  </div>
+  <div class="spacer"></div>
+  <input id="search" type="search" placeholder="搜索歌名 / Search songs…" oninput="onSearch(this.value)">
+  <button class="iconbtn" title="调号变调速查表" onclick="location.hash='#/capo'">Capo表</button>
+  <button class="iconbtn" id="themeBtn" title="深色模式" onclick="toggleTheme()">🌙</button>
+</header>
+
+<main id="app"></main>
+
+<footer class="app">10.31 CCCFC Fall Festival Worship Songbook · 单页 HTML · 可任意变调 · 可部署于 GitHub Pages</footer>
+
+<script>
+const SONGS = [{"id": "01", "titleEn": "Because He Lives", "titleCn": "因祂活着", "meta": {"playlist": "YouTube #1", "keyLabel": "G (原调 Ab, Capo 1)", "timeSig": "4/4", "bpm": "68 BPM", "language": "C/E (英/中双语)", "credits": "The Worship Initiative (feat. John Marc Kohl) / William & Gloria Gaither", "links": "YouTube 敬拜视频  ·  CantonHymn 和弦谱 / 简谱参考"}, "baseKey": "G", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "G                 C                 G                 D7", "lyric": "5, | 3  3  3  4  5  | 6  5  -  3  1  | 2  2  2  1  2  | 3  -  -"}, {"chord": "G                 C                 G        D7       G", "lyric": "5, | 3  3  3  4  5  | 6  5  -  1' 6  | 5  3  1  2  1  | 1  -  - || (Chorus)"}, {"chord": "G        G7       C                 G        Em       D        D7", "lyric": "5  6  7 | 1' - 5  6  7 | 1' 6  -  5  6 | 5  -  3  2  1  | 2  -  -"}, {"chord": "G        G7       C        Am7      G        D7       G", "lyric": "5  6  7 | 1' - 7  6  5 | 6  1' -  6  4 | 3  5  5  6  7  | 1' -  - ||"}], "baseKey": "G"}, {"label": "Verse 1 (English)", "lines": [{"chord": "G                      G7            C", "lyric": "God sent His Son, they called Him Jesus;"}, {"chord": "G                      D             D7", "lyric": "He came to love, heal, and forgive;"}, {"chord": "G                      G7            C", "lyric": "He lived and died to buy my pardon,"}, {"chord": "G                 D                  G      D7", "lyric": "An empty grave is there to prove my Savior lives."}], "baseKey": "G"}, {"label": "Chorus (English)", "lines": [{"chord": "G                  G7         C", "lyric": "Because He lives, I can face tomorrow,"}, {"chord": "G                  Em         D      D7", "lyric": "Because He lives, all fear is gone;"}, {"chord": "G          D/F#    G7         C      Am7", "lyric": "Because I know He holds the future,"}, {"chord": "G                       D7                  G", "lyric": "And life is worth the living just because He lives."}], "baseKey": "G"}, {"label": "Verse 2 (English)", "lines": [{"chord": "G                      G7            C", "lyric": "How sweet to hold a newborn baby,"}, {"chord": "G                      D             D7", "lyric": "And feel the pride and joy he gives;"}, {"chord": "G                      G7            C", "lyric": "But greater still the calm assurance:"}, {"chord": "G                       D7                  G", "lyric": "This child can face uncertain days because He lives."}], "baseKey": "G"}, {"label": "Verse 3 (English)", "lines": [{"chord": "G                      G7            C", "lyric": "And then one day I'll cross the river;"}, {"chord": "G                      D             D7", "lyric": "I'll fight life's final war with pain;"}, {"chord": "G                      G7            C", "lyric": "And then, as death gives way to vict'ry,"}, {"chord": "G                       D7                  G", "lyric": "I'll see the lights of glory and I'll know He reigns."}], "baseKey": "G"}, {"label": "主歌 Verse 1 (中文版《因祂活着》)", "lines": [{"chord": "G              G7         C          G              D      D7", "lyric": "神差爱子，人称祂耶稣，祂赐下爱，医治宽恕；"}, {"chord": "G              G7         C          G        D7           G", "lyric": "死里复活，使我得自由，那空坟墓就是我的得救记号。"}], "baseKey": "G"}, {"label": "副歌 Chorus (中文版)", "lines": [{"chord": "G          G7         C              G        Em     D      D7", "lyric": "因祂活着，我能面对明天；因祂活着，不再惧怕；"}, {"chord": "G     D/F# G7         C      Am7     G        D7           G", "lyric": "我深知道，祂掌管明天，生命充满了希望，只因祂活着。"}], "baseKey": "G"}, {"label": "主歌 Verse 2 & 3 (中文版)", "lines": [{"chord": "G              G7         C          G              D      D7", "lyric": "何等甘甜，靠耶稣基督，祂带给我满足喜乐；"}, {"chord": "G              G7         C          G        D7           G", "lyric": "更觉安慰，乃是我确信，我能面对未来坎坷，因祂活着。"}, {"chord": "G              G7         C          G              D      D7", "lyric": "我主必领我安渡生命河，人生苦难将全攻克；"}, {"chord": "G              G7         C          G        D7           G", "lyric": "借主耶稣战胜了死亡，我将看到祂荣耀光，见祂为王。"}], "baseKey": "G"}]}, {"id": "02", "titleEn": "Goodness of God", "titleCn": "神的良善（恩典一生）", "meta": {"playlist": "YouTube #2", "keyLabel": "G (原调 Ab, Capo 1 / 歌单注 E)", "timeSig": "4/4", "bpm": "63 BPM", "language": "E (优先英文，附中文)", "credits": "Bethel Music & Jenn Johnson", "links": "YouTube 敬拜视频  ·  Ultimate Guitar 完整和弦谱"}, "baseKey": "G", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "G                 C        G        D/F#     Em       C        D", "lyric": "3  2  1 | 1  -  -  2  3 | 4  3  2  1  - | 0  5, 3  2 | 1  6, 5, 1  2 | 2  -  -"}, {"chord": "C                 G                 C                 G        D", "lyric": "3  4 | 5  -  3  2  1  | 1  5, -  3  4 | 5  -  6  5  3  | 2  -  -  (Chorus)"}, {"chord": "C                 G        D/F# Em  C        D        G", "lyric": "3  4 | 5  3  2  1  6, | 5, 3  -  1  2 | 3  2  1  2  1  | 1  -  - ||"}], "baseKey": "G"}, {"label": "Verse 1 (English)", "lines": [{"chord": "G                    C                  G", "lyric": "I love You, Lord, O Your mercy never fails me,"}, {"chord": "D/F#    Em              C              D", "lyric": "All my days, I've been held in Your hands;"}, {"chord": "        Em                      C", "lyric": "From the moment that I wake up,"}, {"chord": "G         D/F#   Em      C         D                G", "lyric": "Until I lay my head, O I will sing of the goodness of God."}], "baseKey": "G"}, {"label": "Chorus (English)", "lines": [{"chord": "C                     G", "lyric": "All my life You have been faithful,"}, {"chord": "C                     G          D", "lyric": "All my life You have been so, so good;"}, {"chord": "C                     G     D/F#  Em", "lyric": "With every breath that I am able,"}, {"chord": "      C         D                G", "lyric": "O I will sing of the goodness of God."}], "baseKey": "G"}, {"label": "Verse 2 (English)", "lines": [{"chord": "G                     C                    G", "lyric": "I love Your voice, You have led me through the fire,"}, {"chord": "D/F#     Em                C            D", "lyric": "In darkest night You are close like no other;"}, {"chord": "          Em                    C", "lyric": "I've known You as a Father,"}, {"chord": "G          D/F#   Em       C          D                G", "lyric": "I've known You as a Friend, and I have lived in the goodness of God."}], "baseKey": "G"}, {"label": "Bridge (English)", "lines": [{"chord": "G/B              C                  D               G", "lyric": "Your goodness is running after, it's running after me;"}, {"chord": "G/B              C                  D               G", "lyric": "Your goodness is running after, it's running after me;"}, {"chord": "G/B               C                          D                Em", "lyric": "With my life laid down, I'm surrendered now, I give You everything;"}, {"chord": "G/B              C                  D               G", "lyric": "Your goodness is running after, it's running after me."}], "baseKey": "G"}, {"label": "中文译词参考（《神的良善》）", "lines": [{"chord": "G                 C            G        D/F#   Em         C          D", "lyric": "[Verse 1] 我爱祢主，祢的怜悯永不失败，一生年日，在祢手中被怀抱；"}, {"chord": "Em                C            G   D/F# Em    C        D        G", "lyric": "从我清晨醒来那一刻，直到我安然入睡，我要歌颂我神的良善。"}, {"chord": "C                 G            C              G          D", "lyric": "[Chorus] 一生年日祢是何等信实，一生年日祢是如此美好；"}, {"chord": "C                 G   D/F# Em  C              D          G", "lyric": "只要我气息仍在的一天，我要歌颂我神的良善。"}, {"chord": "G/B               C            D              G", "lyric": "[Bridge] 祢恩惠慈爱随着我，紧紧跟随我；放下我生命，完全降服祢，献上一切所有。"}], "baseKey": "G"}]}, {"id": "03", "titleEn": "What a Friend We Have in Jesus", "titleCn": "耶稣恩友", "meta": {"playlist": "YouTube #3", "keyLabel": "F (或 G 调)", "timeSig": "4/4", "bpm": "88 BPM", "language": "E/C (英/中双语)", "credits": "EpicYouthWatsonville / Joseph M. Scriven & Charles C. Converse", "links": "YouTube 敬拜视频  ·  赞美歌谱网（五线谱·简谱·和弦）"}, "baseKey": "F", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "F                 Bb                F                 C7", "lyric": "5  5  6  5  | 3  1  1  6, | 5, -  1  3  | 2  5, 5, 6, | 5, -  -  0"}, {"chord": "F                 Bb                F        C7       F", "lyric": "5  5  6  5  | 3  1  1  6, | 5, -  1  2  | 3  2  1  7, | 1  -  -  0"}, {"chord": "C7                F                 Bb       F        C7", "lyric": "2  #1 2  3  | 4  2  3  5  | 4  -  3  2  | 1  6, 5, 1  | 2  -  -  0"}, {"chord": "F                 Bb                F        C7       F", "lyric": "5  5  6  5  | 3  1  1  6, | 5, -  1  2  | 3  2  1  7, | 1  -  -  0 ||"}], "baseKey": "F"}, {"label": "Verse 1 (English)", "lines": [{"chord": "F                          Bb      F                        C7", "lyric": "What a friend we have in Jesus, all our sins and griefs to bear!"}, {"chord": "F                      Bb       F          C7          F", "lyric": "What a privilege to carry everything to God in prayer!"}, {"chord": "C7                         F       Bb       F              C7", "lyric": "O what peace we often forfeit, O what needless pain we bear,"}, {"chord": "F                          Bb       F          C7          F", "lyric": "All because we do not carry everything to God in prayer!"}], "baseKey": "F"}, {"label": "Verse 2 (English)", "lines": [{"chord": "F                          Bb        F                    C7", "lyric": "Have we trials and temptations? Is there trouble anywhere?"}, {"chord": "F                              Bb           F         C7          F", "lyric": "We should never be discouraged; take it to the Lord in prayer."}, {"chord": "C7                              F          Bb          F            C7", "lyric": "Can we find a friend so faithful who will all our sorrows share?"}, {"chord": "F                              Bb          F         C7          F", "lyric": "Jesus knows our every weakness; take it to the Lord in prayer."}], "baseKey": "F"}, {"label": "Verse 3 (English)", "lines": [{"chord": "F                          Bb        F                     C7", "lyric": "Are we weak and heavy laden, cumbered with a load of care?"}, {"chord": "F                              Bb           F         C7          F", "lyric": "Precious Savior, still our refuge—take it to the Lord in prayer."}, {"chord": "C7                              F           Bb         F            C7", "lyric": "Do your friends despise, forsake you? Take it to the Lord in prayer!"}, {"chord": "F                              Bb             F           C7          F", "lyric": "In His arms He'll take and shield you; you will find a solace there."}], "baseKey": "F"}, {"label": "中文版《耶稣恩友》（第 1–3 节）", "lines": [{"chord": "F              Bb       F          C7   F              Bb       F      C7   F", "lyric": "1. 耶稣是我亲爱朋友，背负我罪担我忧，何等权利能将万事，带到主恩座前求！"}, {"chord": "C7             F        Bb   F     C7   F              Bb       F      C7   F", "lyric": "  多少平安屡屡失去，多少痛苦白白受，皆因我们未将万事，带到主恩座前求。"}, {"chord": "F              Bb       F          C7   F              Bb       F      C7   F", "lyric": "2. 有否烦恼压着心头？有否遇试炼引诱？我们切莫灰心失望，仍到主恩座前求！"}, {"chord": "C7             F        Bb   F     C7   F              Bb       F      C7   F", "lyric": "  何处得此忠心朋友，分担一切苦与忧，我们弱点主都知透，放心到主座前求。"}, {"chord": "F              Bb       F          C7   F              Bb       F      C7   F", "lyric": "3. 劳苦多愁软弱不堪，挂虑重担压肩头，主是你我避难处所，快到主恩座前求！"}, {"chord": "C7             F        Bb   F     C7   F              Bb       F      C7   F", "lyric": "  你若遭遇友叛亲离，来到主恩座前求，在主怀中必蒙护佑，与主同在永无忧。"}], "baseKey": "F"}]}, {"id": "04", "titleEn": "Way Maker", "titleCn": "开路者", "meta": {"playlist": "YouTube #4", "keyLabel": "G (C-G-Dsus-Em / 原调 A 或 E)", "timeSig": "4/4", "bpm": "68 BPM", "language": "EN + CN (英/中双语)", "credits": "Leeland (Integrity Music) / Sinach", "links": "YouTube 敬拜视频  ·  G 调标准和弦谱 PDF"}, "baseKey": "G", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "C                 G                 Dsus4             Em", "lyric": "3  2  1  | 1  -  3  5  6  5  3  | 2  -  3  2  1  | 6, -  3  2  1  | 6, -  -"}, {"chord": "C                 G                 Dsus4             Em", "lyric": "1  3  5  | 6  5  3  5  6  5  3  | 5  -  6  5  3  | 2  -  1  2  3  | 6, -  - || (Chorus)"}], "baseKey": "G"}, {"label": "Verse 1 (English)", "lines": [{"chord": "C                              G", "lyric": "You are here, moving in our midst,"}, {"chord": "Dsus4                  Em", "lyric": "I worship You, I worship You;"}, {"chord": "C                               G", "lyric": "You are here, working in this place,"}, {"chord": "Dsus4                  Em", "lyric": "I worship You, I worship You."}], "baseKey": "G"}, {"label": "Chorus (English)", "lines": [{"chord": "C                                G", "lyric": "(You are) Way Maker, Miracle Worker, Promise Keeper,"}, {"chord": "Dsus4                        Em", "lyric": "Light in the darkness, my God, that is who You are!"}, {"chord": "C                                G", "lyric": "Way Maker, Miracle Worker, Promise Keeper,"}, {"chord": "Dsus4                        Em", "lyric": "Light in the darkness, my God, that is who You are!"}], "baseKey": "G"}, {"label": "Verse 2 & 3 (English)", "lines": [{"chord": "C                              G               Dsus4                  Em", "lyric": "You are here, touching every heart, I worship You, I worship You;"}, {"chord": "C                              G               Dsus4                  Em", "lyric": "You are here, healing every heart, I worship You, I worship You."}, {"chord": "C                              G               Dsus4                  Em", "lyric": "You are here, turning lives around, I worship You, I worship You;"}, {"chord": "C                              G               Dsus4                  Em", "lyric": "You are here, mending every heart, I worship You, I worship You."}], "baseKey": "G"}, {"label": "Tag & Bridge (English)", "lines": [{"chord": "C                      G/B                    D                      Em", "lyric": "[Tag] That is who You are, that is who You are, that is who You are, that is who You are."}, {"chord": "C                                      G", "lyric": "[Bridge] Even when I don't see it, You're working; even when I don't feel it, You're "}], "baseKey": "G"}, {"label": "working;", "lines": [{"chord": "Dsus4                                  Em", "lyric": "You never stop, You never stop working; You never stop, You never stop working."}], "baseKey": "G"}, {"label": "中文版《开路者》", "lines": [{"chord": "C              G              Dsus4          Em", "lyric": "[主歌] 祢在这里，运行在我们中间，我敬拜祢，我敬拜祢；"}, {"chord": "C              G              Dsus4          Em", "lyric": "      祢在这里，动工在这地方，我敬拜祢，我敬拜祢。"}, {"chord": "C                      G              Dsus4              Em", "lyric": "[副歌] 祢是开路者，行神迹的神，守约的主，黑暗中的光；我的神，这就是祢！"}, {"chord": "C                      G              Dsus4              Em", "lyric": "[桥段] 纵然我眼看不见，祢仍在动工；纵然我心没感觉，祢仍在动工；祢从不停止动工！"}], "baseKey": "G"}]}, {"id": "05", "titleEn": "Cornerstone", "titleCn": "房角石", "meta": {"playlist": "YouTube #5", "keyLabel": "C (或 G 调，歌单注 C or G)", "timeSig": "4/4", "bpm": "71 BPM", "language": "C or G (提供 C 调与 G 调双调和弦)", "credits": "Hillsong Worship (Reuben Morgan, Jonas Myrin, Eric Liljero)", "links": "YouTube 敬拜视频  ·  Hillsong Cornerstone 和弦谱"}, "baseKey": "C", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "C                          F                          Am                G    ", "lyric": "5, | 1  1  1  3  5  -  3  | 4  4  4  2  1  -  7, | 1  1  1  7, 6, -  5, | 5, -  -"}, {"chord": "F            Am            G                          F         Am        G         C    ", "lyric": "1  2 | 3  -  -  2  1  | 2  -  -  1  2  | 3  3  4  3  2  -  1  | 1  -  - || (Chorus)"}], "baseKey": "C"}, {"label": "Verse 1 (English — Chords shown as Key of C [Key of G in brackets])", "lines": [{"chord": "C                                     Fmaj7                  G    ", "lyric": "My hope is built on nothing less than Jesus' blood and righteousness;"}, {"chord": "Am                              Am/G          F              G           C    ", "lyric": "I dare not trust the sweetest frame, but wholly trust in Jesus' Name."}], "baseKey": "C"}, {"label": "Chorus (English)", "lines": [{"chord": "C/E         F            Am         G    ", "lyric": "Christ alone, Cornerstone;"}, {"chord": "C/E         F            Am            G    ", "lyric": "Weak made strong in the Savior's love;"}, {"chord": "C/E         F            Am            G            C    ", "lyric": "Through the storm, He is Lord, Lord of all."}], "baseKey": "C"}, {"label": "Verse 2 & 3 (English)", "lines": [{"chord": "C                                        Fmaj7                    G    ", "lyric": "When darkness seems to hide His face, I rest on His unchanging grace;"}, {"chord": "Am                         Am/G         F             G              C    ", "lyric": "In every high and stormy gale, my anchor holds within the veil."}, {"chord": "C                                          Fmaj7                      G    ", "lyric": "When He shall come with trumpet sound, O may I then in Him be found;"}, {"chord": "Am                               Am/G          F              G               C    ", "lyric": "Dressed in His righteousness alone, faultless to stand before the throne."}], "baseKey": "C"}, {"label": "中文版《房角石》", "lines": [{"chord": "C                       F              G         Am                   F       G       C    ", "lyric": "[主歌 1] 我盼望别无根基，唯有主宝血和公义；不敢倚靠世上美名，唯独全然信靠耶稣圣名。"}, {"chord": "C/E       F       Am      G       C/E       F        Am      G       C    ", "lyric": "[副歌]   唯基督，房角石，软弱在救主爱里刚强；风暴中，祂作王，万有之主。"}, {"chord": "C                       F              G         Am                   F       G       C    ", "lyric": "[主歌 2] 纵黑暗遮蔽祂面容，我安息在不变恩典；狂风巨浪四面环绕，我的锚抛牢在幔内。"}], "baseKey": "C"}]}, {"id": "06", "titleEn": "The Lily of the Valley", "titleCn": "谷中百合花 (ReFill Live)", "meta": {"playlist": "YouTube #6", "keyLabel": "F (或 D 调)", "timeSig": "4/4", "bpm": "118 BPM", "language": "C (中文经典圣诗改编，附英文原词)", "credits": "台北復興堂 x 天韻合唱團 / Charles W. Fry & William S. Hays", "links": "YouTube 敬拜视频  ·  爱赞美 《谷中百合花》和弦简谱"}, "baseKey": "F", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "F                 Bb       F                 Dm       G7       C7", "lyric": "5, 6, | 1  1  1  2  1  6, | 1  6, 5, -  1  2 | 3  3  3  2  1  3 | 2  -  -"}, {"chord": "F                 Bb       F                 C7                F", "lyric": "5, 6, | 1  1  1  2  1  6, | 1  6, 5, -  1  2 | 3  5  3  1  2  1 | 1  -  - || (Chorus)"}, {"chord": "Bb                F                 Dm       G7       C7", "lyric": "4  4  | 4  2  1  6, 1  6, | 5, 1  3  -  3  3 | 2  1  2  3  2  1 | 2  -  -"}, {"chord": "F                 Bb       F                 C7                F", "lyric": "5, 6, | 1  1  1  2  1  6, | 1  6, 5, -  1  2 | 3  5  3  1  2  1 | 1  -  - ||"}], "baseKey": "F"}, {"label": "English Original (The Lily of the Valley)", "lines": [{"chord": "F                                    Bb               F", "lyric": "I have found a friend in Jesus, He's everything to me,"}, {"chord": "                       Dm       G7        C7", "lyric": "He's the fairest of ten thousand to my soul;"}, {"chord": "F                            Bb              F", "lyric": "The Lily of the Valley, in Him alone I see"}, {"chord": "                         C7                   F", "lyric": "All I need to cleanse and make me fully whole."}, {"chord": "Bb                               F", "lyric": "In sorrow He's my comfort, in trouble He's my stay,"}, {"chord": "                         Dm          G7       C7", "lyric": "He tells me every care on Him to roll:"}, {"chord": "F                                Bb               F", "lyric": "[Chorus] He's the Lily of the Valley, the bright and Morning Star,"}, {"chord": "                                C7               F", "lyric": "He's the fairest of ten thousand to my soul!"}], "baseKey": "F"}, {"label": "中文版《谷中百合花》（台北復興堂 x 天韻合唱團版本）", "lines": [{"chord": "F                     Bb        F              Dm            G7      C7", "lyric": "[主歌 1] 主耶稣是我良友，有主胜得万有，万人中救主是我最好灵友；"}, {"chord": "F                     Bb        F              C7                    F", "lyric": "        主是谷中百合花，我唯一需要祂，祂能洗净我使我圣洁无瑕。"}, {"chord": "Bb                    F                        Dm            G7      C7", "lyric": "        悲伤时祂来解忧，患难时祂保佑，一切忧虑全放在主肩头。"}, {"chord": "F                     Bb        F              C7                    F", "lyric": "[副歌]   主是晨星灿烂光华，是谷中百合花，万人中救主最美好，我爱祂！"}, {"chord": "F                     Bb        F              Dm            G7      C7", "lyric": "[主歌 2] 主带走一切忧愁，将我悲伤担当，当我受试探时祂是我力量；"}, {"chord": "F                     Bb        F              C7                    F", "lyric": "        我愿尽心尽力爱祂，毁掉一切偶像，祂有能力保守我为祂而活。"}], "baseKey": "F"}]}, {"id": "07", "titleEn": "Let Us Love", "titleCn": "在耶稣里彼此相爱", "meta": {"playlist": "YouTube #7", "keyLabel": "F (或 C 调)", "timeSig": "4/4", "bpm": "148 BPM", "language": "C (中文敬拜，附级数与和弦简谱)", "credits": "讚美之泉 Stream of Praise (敬拜讚美 24) / 曾祥怡 Grace Tseng", "links": "YouTube 敬拜视频  ·  爱赞美《在耶稣里彼此相爱》和弦简谱"}, "baseKey": "F", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "F                 Bb                F                 Dm       Gm       C", "lyric": "1  2 | 3  3  3  2  1  2 | 4  4  3  1  - | 3  3  2  1  6, 1 | 2  -  -"}, {"chord": "F                 Bb                F                 Gm       C7       F", "lyric": "1  2 | 3  3  3  2  1  2 | 4  4  3  1  - | 2  2  3  4  3  2 | 1  -  - || (Chorus)"}, {"chord": "F                 Bb       F        Dm                Bb       F", "lyric": "3  4 | 5  5  3  6  5  4 | 3  1  -  3  4 | 5  5  3  6  5  4 | 3  -  -"}, {"chord": "Gm       C        F        Dm       Gm       C7       F", "lyric": "2  3 | 4  4  3  2  3  1 | 6, 5, -  6, 1 | 2  2  3  4  3  2 | 1  -  - ||"}], "baseKey": "F"}, {"label": "主歌 Verse (中文 / Key: F [C 调移调括号内])", "lines": [{"chord": "F                      Bb            F    ", "lyric": "我们和睦同居，何等地美善，"}, {"chord": "F              Dm       Gm            C    ", "lyric": "凡事谦虚、温柔、忍耐；"}, {"chord": "F                      Bb            F    ", "lyric": "竭力保守圣灵赐合一的心，"}, {"chord": "F              Gm       C7            F    ", "lyric": "凡事恩慈、怜悯相待。"}], "baseKey": "F"}, {"label": "副歌 Chorus", "lines": [{"chord": "F              Bb       F    ", "lyric": "在耶稣里彼此相爱，"}, {"chord": "Dm             Bb       F    ", "lyric": "在耶稣里彼此相爱；"}, {"chord": "Gm       C      F        Dm     ", "lyric": "少嫉妒论断，多饶恕关爱，"}, {"chord": "Gm       C7      F    ", "lyric": "我们爱，因为神就是爱！（尾句：我们爱，因为神祂就是爱！）"}], "baseKey": "F"}]}, {"id": "08", "titleEn": "Marks of Grace", "titleCn": "恩典的记号", "meta": {"playlist": "YouTube #8", "keyLabel": "D (或 C 调)", "timeSig": "4/4", "bpm": "63 BPM", "language": "C (中文经典福音诗歌)", "credits": "盛曉玫 Amy Sand（泥土音樂《幸福》专辑）", "links": "YouTube 敬拜视频  ·  爱赞美《恩典的记号》和弦简谱"}, "baseKey": "D", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "D                 G                 D                 Asus4    A", "lyric": "3  4 | 5  5  3  2  1  2 | 4  4  6, 5, - | 3  3  2  1  6, 1 | 2  -  -"}, {"chord": "D/F#     G        D        Bm       Em       E7       Asus4    A", "lyric": "3  4 | 5  6  5  3  2  1 | 2  1  6, -    | 6, 1  2  3  2  1 | 2  -  - || (Chorus)"}, {"chord": "G        A        D        Bm       G        A        D", "lyric": "3  4 | 5  5  6  5  3  2 | 1  6, -  1  2 | 3  3  5  3  2  1 | 2  -  -"}, {"chord": "D/F#     G        D        Bm       Em       A7       D", "lyric": "3  4 | 5  6  5  3  2  1 | 2  1  6, -    | 6, 1  2  3  2  1 | 1  -  - ||"}], "baseKey": "D"}, {"label": "主歌 Verse 1 & 2 (Key: D)", "lines": [{"chord": "D                      G                 D                      Asus4  A", "lyric": "1. 站在大海边，才发现自己是多渺小；登上最高山，才发现天有多高。"}, {"chord": "D/F#   G               D      A/C# Bm    Em             E7      Asus4  A", "lyric": "  浩瀚的宇宙中，我真的微不足道，像灰尘，消失也没人知道。"}, {"chord": "D                      G                 D                      Asus4  A", "lyric": "2. 夜空的星星，仿佛在对着我微微笑；轻声告诉我，一切祂都看见了。"}, {"chord": "D/F#   G               D      A/C# Bm    Em             A7      Dsus4  D", "lyric": "  我所有挣扎、所有软弱和跌倒，将成为主恩典的记号。"}], "baseKey": "D"}, {"label": "副歌 Chorus", "lines": [{"chord": "G              A          D       Bm     G              D/A         A", "lyric": "当我呼求，耶稣听见我的祷告；千万人中，祂竟关心我的需要。"}, {"chord": "D/F#   G       D     A/C# Bm             Esus4  E/G#    Asus4       A", "lyric": "走过的路，有欢笑有泪水，都留下主恩典的记号。"}, {"chord": "D/F#   G       A          D       Bm     G              D/A         A", "lyric": "在风雨中，耶稣将我紧紧拥抱；我深知道，祂是我永远的依靠。"}, {"chord": "D/F#   G       D     A/C# Bm             Em     A7      D", "lyric": "走过的路，有欢笑有泪水，将成为主恩典的记号。"}], "baseKey": "D"}]}, {"id": "09", "titleEn": "I Adore You", "titleCn": "我要爱慕祢", "meta": {"playlist": "YouTube #9", "keyLabel": "C (或 D 调)", "timeSig": "4/4", "bpm": "68 BPM", "language": "C (中文敬拜，附英文对照)", "credits": "KUA MUSIC 跨越（巫詠歡）/ 曲：長澤崇史 Takafumi Nagasawa", "links": "YouTube 敬拜视频  ·  WorshipChords《我要爱慕祢》和弦谱"}, "baseKey": "C", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "C        G/B      Am7      C/G      F        C/E      Dm7      G", "lyric": "3  2  1 | 7, -  1  6, 5, - | 0  1  2  3 | 4  3  2  1  3  2 | 2  -  -"}, {"chord": "C        G/B      Am7      C/G      Dm7      Gsus4    C        C7", "lyric": "3  2  1 | 7, -  1  6, 5, - | 0  6, 7, 1 | 2  3  2  1  7, 1 | 1  -  - || (Chorus)"}, {"chord": "F        C/E      Dm7      G  C     F        C/E  Am7 Dm7  G   C", "lyric": "3  4  5 | 6  5  3  5  -    | 4  3  2  1 | 6  5  3  1  2  3 | 2  1  1  - ||"}], "baseKey": "C"}, {"label": "English Translation Reference (I Adore You)", "lines": [{"chord": "C        G/B         Am7        C/G      F         C/E        Dm7         G", "lyric": "[Verse]  Jesus, I adore You, I adore You, pouring out my life before You;"}, {"chord": "C        G/B         Am7        C/G      Dm7       Gsus4      C           C7", "lyric": "        You are my only desire, let my heart long exclusively for You."}, {"chord": "F        C/E         Dm7        G   C    F         C/E   Am7  Dm7    G    C", "lyric": "[Chorus] My heart overflows with endless love for You; draw me close to Your side, Lord I "}], "baseKey": "C"}, {"label": "主歌 Verse (Key: C [D 调和弦于括号内])", "lines": [{"chord": "C            G/B          Am7          C/G      ", "lyric": "耶稣，我要爱慕祢，"}, {"chord": "F            C/E          Dm7          G    ", "lyric": "我要爱慕祢，倾倒我的生命；"}, {"chord": "C            G/B          Am7          C/G      ", "lyric": "祢是我唯一所求，"}, {"chord": "Dm7          Gsus4         C           C7     ", "lyric": "让我心单单渴慕祢。"}], "baseKey": "C"}, {"label": "副歌 Chorus", "lines": [{"chord": "F            C/E          Dm7          G         C       C7     ", "lyric": "我心满溢，我心满溢，对祢的爱和思念无止尽；"}, {"chord": "F            C/E          Am7          Dm7       Gsus4         C    ", "lyric": "让我走向祢的身旁贴近祢，主啊，我渴慕寻求祢。"}], "baseKey": "C"}]}, {"id": "10", "titleEn": "Abiding in You", "titleCn": "住在祢里面", "meta": {"playlist": "YouTube #10", "keyLabel": "D (或 C 调)", "timeSig": "4/4", "bpm": "66 BPM", "language": "C (中文敬拜诗歌)", "credits": "讚美之泉 Stream of Praise (敬拜讚美 16) / 曾祥怡 Grace Tseng", "links": "YouTube 敬拜视频  ·  爱赞美《住在祢里面》和弦简谱"}, "baseKey": "D", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "D        A/C#     G/B      D/A      G        Em       Asus4    A", "lyric": "5, | 3  2  1  2  | 7, 5, -  5, | 4  3  2  3  | 2  -  -"}, {"chord": "G        A/G      D   A/C# Bm       G        G/A      D        G/A", "lyric": "5, | 6  5  4  3  | 2  1  6, 1  | 2  3  2  1  | 1  -  - || (Chorus)"}, {"chord": "D        A/C#     Bm       D/A      G        A7sus4   D        G/A", "lyric": "3  4 | 5  3  5  6 | 5  3  -  1  2 | 3  4  3  2  1 | 2  -  -"}, {"chord": "D        F#7      Bm       G#dim7   Em7      A7sus4   D", "lyric": "3  4 | 5  3  5  6 | 5  3  -  1  2 | 3  4  3  2  1 | 1  -  - ||"}], "baseKey": "D"}, {"label": "主歌 Verse (Key: D)", "lines": [{"chord": "D            A/C#       G/B          D/A", "lyric": "在干旱无水之地我渴慕祢，"}, {"chord": "G            Em7        Asus4        A", "lyric": "在旷野无人之处我寻求祢；"}, {"chord": "G            A/G        D     A/C#   Bm7", "lyric": "得救在乎归回安息，得力在乎平静安稳，"}, {"chord": "G            G/A        D            G/A", "lyric": "我等候祢，如鹰展翅上腾。"}], "baseKey": "D"}, {"label": "副歌 Chorus", "lines": [{"chord": "D            A/C#       Bm7          D/A", "lyric": "住在祢里面，住在祢里面，"}, {"chord": "G            A7sus4     D            G/A", "lyric": "如同枝子与葡萄树紧紧相连；"}, {"chord": "D            F#7        Bm7   D/A    G#dim7", "lyric": "住在祢里面，住在祢里面，"}, {"chord": "Em7          A7sus4     D", "lyric": "领受生命活水泉源永不枯竭。"}], "baseKey": "D"}]}, {"id": "11", "titleEn": "The Gospel Changes Everything", "titleCn": "福音使一切改变", "meta": {"playlist": "YouTube #11", "keyLabel": "C (原调 Db, Capo 1)", "timeSig": "4/4", "bpm": "52 BPM", "language": "C (英/中双语对照)", "credits": "KUA MUSIC 跨越（紀文惠）/ Meredith Andrews, Benji Cowart, Paul Mabury", "links": "YouTube 敬拜视频  ·  WorshipChords 英文原版和弦谱"}, "baseKey": "C", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "F                 C/E               Dm7      G        C", "lyric": "5, | 4  3  2  1  | 3  2  -  5, | 2  1  7, 1  | 1  -  -  (Verse)"}, {"chord": "F        Am7      G        Am7      F        C/E      Dm7  G   C", "lyric": "1  3 | 4  -  3  2 | 5  -  3  1 | 4  3  2  1  | 2  1  1  - || (Chorus)"}], "baseKey": "C"}, {"label": "Verse 1 & 2 (English — Transposed to C [Orig Db = Capo 1])", "lines": [{"chord": "F                             C/E", "lyric": "1. The gospel changes everything, the turning point in history,"}, {"chord": "Dm7            G              C", "lyric": "  Even now it's changing me from who I was;"}, {"chord": "F                             C/E", "lyric": "  The story of my Savior calls me to the wonder of the cross,"}, {"chord": "Dm7            G                        C", "lyric": "  The gospel changes everything, and it is changing me."}, {"chord": "F                             C/E", "lyric": "2. Jesus changes everything, there is no greater mystery,"}, {"chord": "Dm7            G                   C", "lyric": "  That God would come to rescue me from who I was;"}, {"chord": "F                             C/E", "lyric": "  The kindness of my Savior calls me to the wonder of His love,"}, {"chord": "Dm7            G                        C", "lyric": "  Jesus changes everything, and He is changing me."}], "baseKey": "C"}, {"label": "Chorus (English)", "lines": [{"chord": "F                      Am7", "lyric": "You saved my soul by Your blood,"}, {"chord": "G                      Am7", "lyric": "And I'm undone by Your great love;"}, {"chord": "F                      C/E", "lyric": "You made a way so I could come,"}, {"chord": "Dm7            G              C", "lyric": "Just as I am, to You, my God."}], "baseKey": "C"}, {"label": "中文版《福音使一切改变》（KUA 紀文惠版本）", "lines": [{"chord": "F                     C/E               Dm7          G            C", "lyric": "[主歌 1] 这福音使一切改变，历史当中的转捩点，到如今继续改变我的生命；"}, {"chord": "F                     C/E               Dm7          G            C", "lyric": "        救主的故事呼唤我，来到奇妙的十架前，这福音使一切改变，我不再一样。"}, {"chord": "F                     Am7               G                         Am7", "lyric": "[副歌]   借着宝血祢拯救我，伟大的爱使我惊叹；"}, {"chord": "F                     C/E               Dm7          G            C", "lyric": "        祢开道路使我能够，毫无隐藏到祢面前。"}, {"chord": "F                     C/E               Dm7          G            C", "lyric": "[主歌 2] 耶稣使一切改变，历史最伟大的奥秘，祂的命为拯救我脱离过去；"}, {"chord": "F                     C/E               Dm7          G            C", "lyric": "        耶稣救主慈爱良善，吸引我到祂奇妙爱，耶稣使一切改变，祂正改变我。"}], "baseKey": "C"}]}, {"id": "12", "titleEn": "Christ Is Enough", "titleCn": "基督是我满足", "meta": {"playlist": "YouTube #12", "keyLabel": "G (原调 A / B)", "timeSig": "4/4", "bpm": "80 BPM", "language": "C/E (优先英文，附约书亚中文版)", "credits": "Hillsong Worship / 約書亞樂團 Joshua Band (《点燃》专辑)", "links": "YouTube 敬拜视频  ·  爱赞美 《基督是我满足》G调和弦简谱"}, "baseKey": "G", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "Em       C        G        D/F#     Em       C        G        D", "lyric": "3  2  1 | 2  -  -  3  2 | 1  5, -  3  2 | 1  2  -  3  4 | 3  2  -  (Verse)"}, {"chord": "G                 Em       C        D        C        D        G", "lyric": "5  -  6  5  3  | 5  -  -  3  2 | 1  2  3  2  1  | 2  1  1  - || (Chorus)"}], "baseKey": "G"}, {"label": "Verse 1 & Pre-Chorus (English — Key: G)", "lines": [{"chord": "Em                 C                   G                  D/F#", "lyric": "Christ is my reward, and all of my devotion,"}, {"chord": "Em                        C                    G          D/F#", "lyric": "Now there's nothing in this world that could ever satisfy;"}, {"chord": "C                   D          Em        D/F#   C                  D", "lyric": "[Pre-Chorus] Through every trial, my soul will sing; no turning back, I've been set free!"}], "baseKey": "G"}, {"label": "Chorus (English)", "lines": [{"chord": "G                                   Em      C              D", "lyric": "Christ is enough for me, Christ is enough for me;"}, {"chord": "               Em        C            G          D", "lyric": "Everything I need is in You, everything I need."}], "baseKey": "G"}, {"label": "Verse 2 & Bridge (English)", "lines": [{"chord": "Em                 C                   G                  D/F#", "lyric": "Christ my all in all, the joy of my salvation,"}, {"chord": "Em                 C                   G                  D/F#", "lyric": "And this hope will never fail, Heaven is our home;"}, {"chord": "C                   D          Em        D/F#   C                  D", "lyric": "[Pre-Chorus 2] Through every storm, my soul will sing; Jesus is here, to God be the glory!"}, {"chord": "G                          C        D         Em          C             D    G", "lyric": "[Bridge] I have decided to follow Jesus, no turning back, no turning back!"}, {"chord": "Em                         C             D         G      C             D    G", "lyric": "        The cross before me, the world behind me, no turning back, no turning back!"}], "baseKey": "G"}, {"label": "中文版《基督是我满足》（約書亞樂團译词）", "lines": [{"chord": "Em             C              G              D/F#", "lyric": "[主歌 1] 祢是我奖赏，是我唯一所爱慕；这世上没有事物，能够带给我满足。"}, {"chord": "C              D      Em      D/F#   C              D", "lyric": "[导歌 1] 在试炼中，我灵歌唱；永不回头，我得自由！"}, {"chord": "G                             Em     C              D        C        D    G", "lyric": "[副歌]   基督是我满足，基督祢是我心满足；我一切所需在于祢，一切在于祢。"}, {"chord": "Em             C              G              D/F#", "lyric": "[主歌 2] 基督我全所有，救恩喜乐在于祢；这盼望永不止息，天堂是我家。"}, {"chord": "G              C      D       Em     C              D        G", "lyric": "[桥段]   我已经决定，要跟随耶稣，永不回头，永不回头！十架在前面，世界在背后，永不回头！"}], "baseKey": "G"}]}, {"id": "13", "titleEn": "What A Beautiful Name", "titleCn": "何等荣美的名", "meta": {"playlist": "YouTube #13", "keyLabel": "D (或 C 调)", "timeSig": "4/4", "bpm": "68 BPM", "language": "C/E (优先英文，附约书亚中文版)", "credits": "Hillsong Worship (Ben Fielding & Brooke Ligertwood)", "links": "YouTube 敬拜视频  ·  D 调标准和弦谱 PDF / pnwchords 中文谱"}, "baseKey": "D", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "D                 G        Bm       A        Bm  A/C# D        G    Bm  A", "lyric": "3  2  1  2  3 | 4  3  2  1  - | 3  2  1  2  3 | 2  -  -  (Verse)"}, {"chord": "D                 A                 Bm       A        G", "lyric": "5  5  5  6  5 | 3  5  5  6  5 | 5  6  5  4  3 | 2  -  -  (Chorus)"}, {"chord": "D/F#              A                 Bm       A        G", "lyric": "5  5  5  6  5 | 3  2  1  2  - | 5  6  5  4  3 | 1  -  - ||"}], "baseKey": "D"}, {"label": "Verse 1 (English — Key: D)", "lines": [{"chord": "D                                G           Bm         A", "lyric": "You were the Word at the beginning, one with God the Lord Most High;"}, {"chord": "Bm                 A/C#  D        G           Bm         A", "lyric": "Your hidden glory in creation, now revealed in You our Christ."}], "baseKey": "D"}, {"label": "Chorus 1 (English)", "lines": [{"chord": "                        D                             A", "lyric": "What a beautiful Name it is, what a beautiful Name it is,"}, {"chord": "           Bm     A      G", "lyric": "The Name of Jesus Christ my King;"}, {"chord": "                        D/F#                          A", "lyric": "What a beautiful Name it is, nothing compares to this,"}, {"chord": "                        Bm            A         G", "lyric": "What a beautiful Name it is, the Name of Jesus."}], "baseKey": "D"}, {"label": "Verse 2 & Chorus 2 (English)", "lines": [{"chord": "D                                   G              Bm         A", "lyric": "You didn't want heaven without us, so Jesus, You brought heaven down;"}, {"chord": "Bm                    A/C#    D          G           Bm         A", "lyric": "My sin was great, Your love was greater, what could separate us now?"}, {"chord": "                        D                             A             Bm     A      G", "lyric": "[Chorus 2] What a wonderful Name it is, what a wonderful Name it is, the Name of Jesus "}], "baseKey": "D"}, {"label": "Bridge 1 & 2 (English)", "lines": [{"chord": "G                               A                Bm7                          F#m7", "lyric": "Death could not hold You, the veil tore before You, You silence the boast of sin and grave;"}, {"chord": "G                               A                Bm7                          A", "lyric": "The heavens are roaring the praise of Your glory, for You are raised to life again!"}, {"chord": "G                   A               Bm7                  F#m7", "lyric": "You have no rival, You have no equal, now and forever, God You reign;"}, {"chord": "G                        A                Bm7                 A", "lyric": "Yours is the kingdom, Yours is the glory, Yours is the Name above all names!"}], "baseKey": "D"}, {"label": "中文版《何等荣美的名》", "lines": [{"chord": "D                     G      Bm   A    Bm     A/C#   D      G      Bm   A", "lyric": "[主歌 1] 祢就是太初神的道，至高主与神同在；在造物中隐藏祢荣耀，今显明在基督里。"}, {"chord": "D                     A                Bm     A      G", "lyric": "[副歌]   这是何等荣美的名，这是何等荣美的名，我王耶稣基督圣名；"}, {"chord": "D/F#                  A                Bm            A      G", "lyric": "        这是何等荣美的名，无一事物相比，这是何等荣美的名，耶稣的圣名。"}, {"chord": "D                     G      Bm   A    Bm     A/C#   D      G      Bm   A", "lyric": "[主歌 2] 为了与我们同享天堂，祢带着天国降临；我罪虽重但祢爱更深，我们永远不分离。"}, {"chord": "G             A       Bm7         F#m7 G             A      Bm7         A", "lyric": "[桥段]   死困不住祢，幔子已挪去，罪和阴间屈服于祢；与天堂欢庆，祢荣耀显明，死里复活祢得胜利！"}, {"chord": "G             A       Bm7         F#m7 G             A      Bm7         A", "lyric": "        祢无所匹敌，祢无人相比，耶稣掌权直到永远；国度属于祢，荣耀属于祢，超乎一切我主圣名！"}], "baseKey": "D"}]}, {"id": "14", "titleEn": "Light of the World", "titleCn": "世界之光", "meta": {"playlist": "YouTube #14", "keyLabel": "G", "timeSig": "4/4 (慢摇滚 12/8 律动)", "bpm": "72 BPM", "language": "CN + EN (中文敬拜，附和弦简谱)", "credits": "讚美之泉 Stream of Praise (敬拜讚美 13) / 曾祥怡、游智婷", "links": "YouTube 敬拜视频  ·  爱赞美《世界之光》和弦简谱"}, "baseKey": "G", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "G        Bm       C   Am   D        G   B7   Em       C   Am   D", "lyric": "5  5  6  5  - | 1' 7  6  5  - | 3  3  4  5  - | 6  5  4  2  - || (Verse)"}, {"chord": "G        Em       C   Am   D        G        Em       C   D    G", "lyric": "5  1' 7  6  5 | 6  5  3  2  - | 5  1' 7  6  5 | 6  7  1' 1' - || (Chorus)"}], "baseKey": "G"}, {"label": "主歌 Verse (Key: G)", "lines": [{"chord": "G              Bm7          C        Am7      D", "lyric": "耶稣，世界的盼望，唯一的真光照亮一切黑暗；"}, {"chord": "G      B7      Em7          C        G/B      Am7     D", "lyric": "耶稣，道路、真理和生命，配得至圣尊荣到永远。"}], "baseKey": "G"}, {"label": "副歌 Chorus & Bridge", "lines": [{"chord": "G              Em7          C        G/B      Am7     D", "lyric": "万国万民齐来敬拜，在圣洁的光中高举耶稣基督的名；"}, {"chord": "G              Em7          C        G/B      C       G/B", "lyric": "天上地下齐来敬拜，愿荣耀都归祢，愿荣耀都归祢，"}, {"chord": "Am7            D            G", "lyric": "愿荣耀都归祢，世界之光！"}, {"chord": "G      D/F#    Em7   Bm7    C        G/B      Am7     D", "lyric": "[Bridge] 哈利路亚，哈利路亚，哈利路亚，荣耀归君王！"}], "baseKey": "G"}]}, {"id": "15", "titleEn": "My Heart Will Praise You, Lord", "titleCn": "我要全心赞美", "meta": {"playlist": "YouTube #15", "keyLabel": "F (或 D/E 调)", "timeSig": "4/4", "bpm": "132 BPM", "language": "CN (中文欢庆敬拜诗歌)", "credits": "讚美之泉 Stream of Praise (敬拜讚美 15) / 曾祥怡 Grace Tseng", "links": "YouTube 敬拜视频  ·  CantonHymn / 爱赞美《我要全心赞美》和弦简谱"}, "baseKey": "F", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "F        F/A      Bbmaj7            Gm7      Gm7/F    Bb/C     C7", "lyric": "5  6  5  3  - | 5  6  5  4  - | 4  5  4  2  1 | 2  3  5  5  - || (Verse)"}, {"chord": "F        C/E      Dm7               Bb       Gm7      Bb/C     C", "lyric": "1' 1' 6  5  3 | 5  6  5  3  - | 4  4  5  6  5 | 4  3  2  5  -"}, {"chord": "F        C/E      Dm7               Bb       C7       F", "lyric": "1' 1' 6  5  3 | 5  6  1' 6  - | 5  6  5  3  2 | 1  -  -  - || (Chorus)"}], "baseKey": "F"}, {"label": "主歌 Verse (Key: F)", "lines": [{"chord": "F              F/A          Bbmaj7", "lyric": "全心感谢，全心赞美，进入祢的院；"}, {"chord": "Gm7            Gm7/F        Bb/C         C7", "lyric": "全心颂赞，献上为祭，是嘴唇的果子。"}, {"chord": "F              F/A          Bbmaj7", "lyric": "在祢里面，一无挂虑，喜乐满溢；"}, {"chord": "Gm7            Gm7/F        Bb/C         C7", "lyric": "常常感谢，不住祷告，盼望在于祢。"}], "baseKey": "F"}, {"label": "副歌 Chorus", "lines": [{"chord": "F              C/E          Dm7", "lyric": "我要全心赞美，跳舞颂扬祢名，"}, {"chord": "Bb             Gm7          Bb/C         C", "lyric": "在祢殿中一日胜过在世上千日；"}, {"chord": "F              C/E          Dm7          Cm7  F7", "lyric": "我要全心赞美，赞美还要赞美不停，"}, {"chord": "Bb             C7           F", "lyric": "义人棚里欢呼声永不息！"}], "baseKey": "F"}]}, {"id": "16", "titleEn": "Living Hope", "titleCn": "永活盼望", "meta": {"playlist": "YouTube #16", "keyLabel": "G (或 A 调)", "timeSig": "4/4", "bpm": "72 BPM", "language": "EN + CN (英/中双语)", "credits": "Phil Wickham & Brian Johnson", "links": "YouTube 敬拜视频  ·  G 调标准和弦谱 PDF"}, "baseKey": "G", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "G                 Dsus4             C2       Em7      Dsus4", "lyric": "5, | 3  3  2  1  2  | 1  5, -  5, | 4  4  3  2  3  | 2  -  -  (Verse)"}, {"chord": "C2       G        Dsus4    Em7      C2       G        D        G", "lyric": "3  5 | 6  5  -  3  5 | 6  5  3  2  1 | 3  5  6  5  3  2 | 1  -  - || (Chorus)"}], "baseKey": "G"}, {"label": "Verse 1 & 2 (English — Key: G)", "lines": [{"chord": "G                          Dsus4               C2             Em7         Dsus4", "lyric": "1. How great the chasm that lay between us, how high the mountain I could not climb;"}, {"chord": "G                          Dsus4               C2             Dsus4       G", "lyric": "  In desperation, I turned to heaven, and spoke Your name into the night."}, {"chord": "C2                         G                   Em7                        D", "lyric": "  Then through the darkness, Your loving-kindness tore through the shadows of my soul;"}, {"chord": "G                          Dsus4               C2             Dsus4       G", "lyric": "  The work is finished, the end is written: Jesus Christ, my living hope."}, {"chord": "G                          Dsus4               C2             Em7         Dsus4", "lyric": "2. Who could imagine so great a mercy? What heart could fathom such boundless grace?"}, {"chord": "G                          Dsus4               C2             Dsus4       G", "lyric": "  The God of ages stepped down from glory to wear my sin and bear my shame."}, {"chord": "C2                         G                   Em7                        D", "lyric": "  The cross has spoken, I am forgiven, the King of kings calls me His own;"}, {"chord": "G                          Dsus4               C2             Dsus4       G", "lyric": "  Beautiful Savior, I'm Yours forever: Jesus Christ, my living hope!"}], "baseKey": "G"}, {"label": "Chorus (English)", "lines": [{"chord": "C2    G              Dsus4           Em7       C2    G              D               Em7", "lyric": "Hallelujah, praise the One who set me free! Hallelujah, death has lost its grip on me!"}, {"chord": "C2                   G               D               Em7", "lyric": "You have broken every chain, there's salvation in Your name,"}, {"chord": "C2          Dsus4    D      G", "lyric": "Jesus Christ, my living hope!"}], "baseKey": "G"}, {"label": "Verse 3 (English)", "lines": [{"chord": "G                             Dsus4            C2         Em7          Dsus4", "lyric": "Then came the morning that sealed the promise, Your buried body began to breathe;"}, {"chord": "G                             Dsus4            C2         Dsus4        G", "lyric": "Out of the silence, the Roaring Lion declared the grave has no claim on me!"}, {"chord": "C2         D               G", "lyric": "Jesus, Yours is the victory!"}], "baseKey": "G"}, {"label": "中文版《永活盼望》", "lines": [{"chord": "G              Dsus4          C2     Em7     Dsus4  G              Dsus4        C2     ", "lyric": ""}, {"chord": "Dsus4   G", "lyric": "[主歌 1] 我们之间曾有深渊隔绝，高山险峻我无法攀越；绝望之中我仰望天父，黑夜里呼求祢圣名。"}, {"chord": "C2             G              Em7            D      G              Dsus4        C2     ", "lyric": ""}, {"chord": "Dsus4   G", "lyric": "        祢慈爱恩典穿透了黑暗，驱散我灵魂一切阴霾；救赎已成就，结局已写定：耶稣基督，我永活盼望！"}, {"chord": "C2  G          Dsus4     Em7  C2  G          D         Em7  C2     G      D     Em7   C2   ", "lyric": ""}, {"chord": "D   G", "lyric": "[副歌]   哈利路亚，赞美那释放我的主！哈利路亚，死亡不再辖制我！祢已断开一切锁链，救恩全在祢圣名里，耶稣基"}], "baseKey": "G"}]}, {"id": "17", "titleEn": "If You Want To Know (Where Love Is)", "titleCn": "如果你想知道", "meta": {"playlist": "YouTube #17", "keyLabel": "G", "timeSig": "4/4", "bpm": "112 BPM", "language": "C (中文欢快儿童/游园会互动诗歌)", "credits": "讚美之泉 Stream of Praise (敬拜讚美 07 / 兒童敬拜讚美 3)", "links": "YouTube 敬拜视频  ·  爱赞美《如果你想知道》和弦简谱"}, "baseKey": "G", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "G        D/F#     Em       G/D      C        D7       G", "lyric": "5, | 3  3  3  2  1  | 5, 5, -  5, | 6, 1  2  3  | 2  -  -"}, {"chord": "G        D/F#     Em       G/D      C        D7       G", "lyric": "5, | 3  3  3  2  1  | 5, 5, -  5, | 6, 1  2  7, | 1  -  - || (Chorus)"}, {"chord": "C        D        G        Em       A7       D        G", "lyric": "1  2 | 3  1  3  4 | 5  3  -  3 | 2  2  3  2 | 1  5, -"}, {"chord": "C        D        G        Em       A7       D7       G", "lyric": "1  2 | 3  1  3  4 | 5  3  -  3 | 2  5  3  2 | 1  -  - ||"}], "baseKey": "G"}, {"label": "主歌 Verse 1 & 2 (Key: G — 适合游园会破冰互动)", "lines": [{"chord": "G              D/F#     Em         G/D      C        D7         G", "lyric": "1. 如果你想知道爱在哪里，爱就在你我的周围；"}, {"chord": "G              D/F#     Em         G/D      C        D7         G", "lyric": "  如果你想知道爱在哪里，爱就在每个笑脸上。"}, {"chord": "G              D/F#     Em         G/D      C        D7         G", "lyric": "2. 如果你想知道爱在哪里，爱就在成长生命中；"}, {"chord": "G              D/F#     Em         G/D      C        D7         G", "lyric": "  如果你想知道爱在哪里，爱就在父母的心里。"}], "baseKey": "G"}, {"label": "副歌 Chorus", "lines": [{"chord": "C        D        G        Em       A7       D7         G      G7", "lyric": "爱在哪里？爱在哪里？爱就在神的爱子里；"}, {"chord": "C        D        G        Em       A7       D7         G", "lyric": "爱从何来？爱从何来？爱——它是从神而来！"}], "baseKey": "G"}]}, {"id": "18", "titleEn": "I Will Be Joyful", "titleCn": "我选择喜乐", "meta": {"playlist": "YouTube #18", "keyLabel": "G", "timeSig": "4/4", "bpm": "128 BPM", "language": "C (中英双语欢庆诗歌)", "credits": "讚美之泉 Stream of Praise (敬拜讚美 29) / 鄭懋柔、游智婷", "links": "YouTube 敬拜视频  ·  爱赞美  《我选择喜乐》G调和弦简谱"}, "baseKey": "G", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "G                 C                 G                 D", "lyric": "5, | 1  2  3  1  | 4  3  2  1  | 3  3  5  3  | 2  -  -  (Verse)"}, {"chord": "G                 C                 Am7      D        G", "lyric": "5  5  3  1  | 6  6  5  3  | 2  3  4  2  | 1  -  - || (Chorus)"}], "baseKey": "G"}, {"label": "English Lyrics (I Will Be Joyful)", "lines": [{"chord": "G                                C                  G                    D", "lyric": "[Verse]    I come before the Lord, the source of all my joy, I sing and dance and praise "}], "baseKey": "G"}, {"label": "His name;", "lines": [{"chord": "G                                C                  Am7        D         G", "lyric": "          I come before the Lord, the source of all my joy, with You I always will "}], "baseKey": "G"}, {"label": "rejoice!", "lines": [{"chord": "G                        C                   D                  G", "lyric": "[Chorus 1] I will be joyful, joyful, joyful, joyful, rejoice in the Lord always!"}, {"chord": "G                        C                   Am7       D        G", "lyric": "          I will be joyful, joyful, joyful, God is here, joy is overflowing!"}, {"chord": "G                        C                   D                  G", "lyric": "[Chorus 2] I choose to trust Him, trust Him, pray and give thanks in everything;"}, {"chord": "G                        C                   Am7       D        G", "lyric": "          I choose to trust Him, trust Him, in all things give thanks and trust Him!"}], "baseKey": "G"}, {"label": "中文版《我选择喜乐》（Key: G）", "lines": [{"chord": "G                      C              G                  D", "lyric": "[主歌]   我来到神面前，最喜乐神面前，弹琴、跳舞、大声欢呼；"}, {"chord": "G                      C              Am7      D         G", "lyric": "        我来到神面前，最喜乐神面前，有了祢，我就喜乐！"}, {"chord": "G                      C              D                  G", "lyric": "[副歌 1] 我选择喜乐、喜乐、喜乐、喜乐，靠主常常喜乐；"}, {"chord": "G                      C              Am7      D         G", "lyric": "        我选择喜乐、喜乐、喜乐，神在这里，喜乐无止尽！"}, {"chord": "G                      C              D                  G", "lyric": "[副歌 2] 我选择相信、相信、相信、相信，祷告，凡事谢恩；"}, {"chord": "G                      C              Am7      D         G", "lyric": "        我选择相信、相信、相信，凡事感恩，凡事相信！"}], "baseKey": "G"}]}, {"id": "19", "titleEn": "We Give", "titleCn": "我们献上", "meta": {"playlist": "YouTube #19", "keyLabel": "G", "timeSig": "4/4", "bpm": "70 BPM", "language": "C (中文敬拜诗歌)", "credits": "約書亞樂團 Joshua Band（大衛帳幕的榮耀 10 ft. 曾晨恩）", "links": "YouTube 敬拜视频  ·  Ultimate Guitar / CantonHymn《我们献上》和弦谱"}, "baseKey": "G", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "G        D/F#     G        Em  D    G        Am       D        G", "lyric": "5, | 3  2  1  2  3  | 2  1  5, - | 6, 1  2  3  2 | 1  -  -  (Verse)"}, {"chord": "G                 Em                Am                F        D", "lyric": "3  4 | 5  5  6  5  3 | 5  3  -  2  1 | 6, 1  2  3  1 | 2  -  - || (Chorus)"}], "baseKey": "G"}, {"label": "主歌 Verse 1 & 2 (Key: G)", "lines": [{"chord": "G          D/F#   G        Em       D      G        Am       D        G", "lyric": "1. 在祢的宝座前，天使聚集赞美，荣耀永远属于祢；"}, {"chord": "G          D/F#   G        Em       D      G        Am       D        G", "lyric": "  万国万口万邦，穿着洁白衣裳，我们前来向主歌唱。"}, {"chord": "G          D/F#   G        Em       D      G        Am       D        G", "lyric": "2. 在祢的同在里，我们扬声敬拜，爱慕颂赞不停息；"}, {"chord": "G          D/F#   G        Em       D      G        Am       D        G", "lyric": "  昔在今在永在，万世尊崇爱戴，为要诉说祢的爱。"}], "baseKey": "G"}, {"label": "副歌 Chorus & Bridge", "lines": [{"chord": "G                          Em", "lyric": "我们献上全心的赞美，归于至高全能大君王，"}, {"chord": "Am                         F              D", "lyric": "我们的声音述说祢的荣耀，祢的慈爱直到永远；"}, {"chord": "G                          Em", "lyric": "我们献上生命的敬拜，渴慕能够更多亲近祢，"}, {"chord": "Am                         F              D          G", "lyric": "蒙恩的儿女歌颂祢的美好，欢迎祢的国度降临这土地。"}, {"chord": "G          D/F#            Am             C          D        G", "lyric": "[Bridge] 哈利路亚，哈利路亚，哈利路亚，荣耀都归于祢！"}], "baseKey": "G"}]}, {"id": "20", "titleEn": "Closer to You", "titleCn": "与祢更靠近", "meta": {"playlist": "YouTube #20", "keyLabel": "D (或 C 调)", "timeSig": "4/4", "bpm": "68 BPM", "language": "C (中文敬拜诗歌)", "credits": "約書亞樂團 Joshua Band（大衛帳幕的榮耀 08 ft. 曹婉甄）/ 趙治達", "links": "YouTube 敬拜视频  ·  CantonHymn / 爱赞美《与祢更靠近》和弦简谱"}, "baseKey": "D", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "D        A/C#     Bm       G        D   A/C# Bm   A   G        A", "lyric": "5, | 3  2  1  2  | 6, -  1  2  | 3  2  1  6, 5, | 6, -  2  - || (Verse)"}, {"chord": "D        A/C#     Bm       A        G        D/F#     Em   A   D", "lyric": "3  4 | 5  5  6  5  3 | 4  4  5  4  2 | 3  3  4  3  1 | 2  1  1  - || (Chorus)"}], "baseKey": "D"}, {"label": "主歌 Verse (Key: D [C 调和弦于括号内])", "lines": [{"chord": "D              A/C#           Bm             G    ", "lyric": "主祢是我的避难所，"}, {"chord": "D              A/C#           Bm       A     G              A    ", "lyric": "祢爱将我紧紧地拥抱，使我苏醒祢爱里；"}, {"chord": "D              A/C#           Bm             G    ", "lyric": "我愿成为祢的居所，"}, {"chord": "D              A/C#           Bm       A     G              A    ", "lyric": "我要爱祢，要永远坚定地爱祢，亲近祢。"}], "baseKey": "D"}, {"label": "副歌 Chorus & Bridge", "lines": [{"chord": "D                             A/C#      ", "lyric": "主我愿让祢来拥有我的心，"}, {"chord": "Bm                            A    ", "lyric": "不再用力坚持倚靠我自己；"}, {"chord": "G                             D/F#      ", "lyric": "愿祢每句话语都成为我命定，"}, {"chord": "Em                            A                    D    ", "lyric": "改变我生命，一步一步与祢更靠近，走进祢心意。"}, {"chord": "G              D/F#           Em                   A              D    ", "lyric": "[Bridge] 没有人像祢用爱满足我心，祢是我的唯一！（x2）"}], "baseKey": "D"}]}, {"id": "21", "titleEn": "You Are My All In All", "titleCn": "祢是我的一切（合辑：含英文版 #22 与中文版 #21）", "meta": {"playlist": "YouTube #21 & #22", "keyLabel": "F (或 D / G 调，Canon 卡农和弦进行)", "timeSig": "4/4", "bpm": "67 BPM", "language": "C/E (优先英文 #22，附中文 #21)", "credits": "Brentwood Baptist Worship (#22) & KUA MUSIC 蔡佳靈 (#21) / Dennis Jernigan", "links": "YouTube 敬拜视频  ·  赞美歌谱网（五线谱·简谱·和弦）| 中文版视频 #21: youtu.be/Vs-XA9QgG34"}, "baseKey": "F", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "F        C/E      Dm       Am/C     Bb       Gm7      C4       C", "lyric": "3  -  2  1  | 7, -  5, -  | 6, -  7, 1  | 2  -  -  0  | 1  -  7, 6, | 5, -  -  0"}, {"chord": "F        C/E      Dm       Am/C     Bb       C7       F", "lyric": "3  -  2  1  | 7, -  5, -  | 6, -  7, 1  | 2  -  7, -  | 1  -  -  0 || (Verse)"}, {"chord": "F        C/E      Dm       Am/C     Bb       C7       F", "lyric": "3  -  4  5  | 6  -  3  -  | 4  -  3  2  | 1  -  7, -  | 1  -  -  0 || (Chorus)"}], "baseKey": "F"}, {"label": "Verse 1 & 2 (English — Key: F [Key of G in brackets])", "lines": [{"chord": "F                      C/E                    Dm     ", "lyric": "1. You are my strength when I am weak,"}, {"chord": "Am/C                   Bb    ", "lyric": "  You are the treasure that I seek,"}, {"chord": "Gm7            C       F        C    ", "lyric": "  You are my all in all."}, {"chord": "F                      C/E                    Dm     ", "lyric": "  Seeking You as a precious jewel,"}, {"chord": "Am/C                   Bb    ", "lyric": "  Lord, to give up I'd be a fool,"}, {"chord": "Gm7            C7      F    ", "lyric": "  You are my all in all."}, {"chord": "F                      C/E                    Dm     ", "lyric": "2. Taking my sin, my cross, my shame,"}, {"chord": "Am/C                   Bb                     Gm7        C      F      C    ", "lyric": "  Rising again I bless Your name, You are my all in all."}, {"chord": "F                      C/E                    Dm     ", "lyric": "  When I fall down, You pick me up;"}, {"chord": "Am/C                   Bb                     Gm7        C7      F    ", "lyric": "  When I am dry, You fill my cup, You are my all in all."}], "baseKey": "F"}, {"label": "Chorus (English)", "lines": [{"chord": "F           C/E         Dm         Am/C         Bb         C         F      C    ", "lyric": "Jesus, Lamb of God, worthy is Your name;"}, {"chord": "F           C/E         Dm         Am/C         Bb         C7        F    ", "lyric": "Jesus, Lamb of God, worthy is Your name!"}], "baseKey": "F"}, {"label": "中文版《祢是我的一切》（KUA 蔡佳靈 #21）", "lines": [{"chord": "F              C/E         Dm         Am/C        Bb             Gm7       C      F    ", "lyric": "[主歌 1] 祢是我倚靠的力量，祢是我寻求的宝藏，祢是我的一切；"}, {"chord": "F              C/E         Dm         Am/C        Bb             Gm7       C7      F    ", "lyric": "        祢好比贵重的珍宝，我怎能放弃祢不要，祢是我的一切。"}, {"chord": "F              C/E         Dm         Am/C        Bb             C         F      C    ", "lyric": "[副歌]   耶稣，神羔羊，配得大赞美；"}, {"chord": "F              C/E         Dm         Am/C        Bb             C7        F    ", "lyric": "        耶稣，神羔羊，配得大赞美！"}, {"chord": "F              C/E         Dm         Am/C        Bb             Gm7       C      F    ", "lyric": "[主歌 2] 担当我罪债和羞辱，死里复活我蒙救赎，祢是我的一切；"}, {"chord": "F              C/E         Dm         Am/C        Bb             Gm7       C7      F    ", "lyric": "        当我跌倒祢扶持我，当我干渴祢充满我，祢是我的一切。"}], "baseKey": "F"}]}, {"id": "22", "titleEn": "This Is Amazing Grace", "titleCn": "奇异恩典（不改变的爱）", "meta": {"playlist": "YouTube #23", "keyLabel": "G (原调 Bb = Capo 3)", "timeSig": "4/4", "bpm": "98 BPM", "language": "E (优先英文，附中文译词)", "credits": "Phil Wickham (Jeremy Riddle, Josh Farro, Phil Wickham)", "links": "YouTube 敬拜视频  ·  ChordSequence 移调和弦谱 (Bb / G / C)"}, "baseKey": "G", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "G                         C                         Em        D         C     ", "lyric": "3  3  3  2  1  2  | 3  3  3  2  1  5, | 6, 1  2  3  2  1  | 1  -  -  (Verse)"}, {"chord": "G                         C                         Em                  D    ", "lyric": "5  5  5  6  5  3  | 5  5  5  6  5  3  | 5  5  5  6  5  3  | 2  -  -  (Chorus)"}], "baseKey": "G"}, {"label": "Verse 1 & 2 (English — Chords in G [Orig Bb in brackets = Capo 3])", "lines": [{"chord": "G                                     C     ", "lyric": "1. Who breaks the power of sin and darkness? Whose love is mighty and so much stronger?"}, {"chord": "Em           D                        C     ", "lyric": "  The King of Glory, the King above all kings!"}, {"chord": "G                                     C     ", "lyric": "  Who shakes the whole earth with holy thunder? Who leaves us breathless in awe and "}], "baseKey": "G"}, {"label": "wonder?", "lines": [{"chord": "Em           D                        C     ", "lyric": "  The King of Glory, the King above all kings!"}, {"chord": "G                                     C                                      Em        D ", "lyric": ""}, {"chord": "      C     ", "lyric": "2. Who brings our chaos back into order? Who makes the orphan a son and daughter? The King "}], "baseKey": "G"}, {"label": "of Glory!", "lines": [{"chord": "G                                     C                                      Em        D ", "lyric": ""}, {"chord": "      C     ", "lyric": "  Who rules the nations with truth and justice, shines like the sun in all of its "}], "baseKey": "G"}, {"label": "Chorus & Bridge (English)", "lines": [{"chord": "G                          C     ", "lyric": "This is amazing grace, this is unfailing love,"}, {"chord": "Em                         D    ", "lyric": "That You would take my place, that You would bear my cross;"}, {"chord": "G                          C     ", "lyric": "You laid down Your life, that I would be set free,"}, {"chord": "Em                 D                        G     ", "lyric": "Oh, Jesus, I sing for all that You've done for me!"}, {"chord": "G                                    C     ", "lyric": "[Bridge] Worthy is the Lamb who was slain! Worthy is the King who conquered the grave! (x3)"}], "baseKey": "G"}, {"label": "中文版《这是奇异恩典》（約書亞樂團译词）", "lines": [{"chord": "G                      C                      Em       D       C     ", "lyric": "[主歌] 谁断开黑暗罪恶权势？谁的爱刚强无可比拟？荣耀的君王，万王之王！"}, {"chord": "G                      C                      Em               D    ", "lyric": "[副歌] 这是奇异恩典，这是不失败的爱，祢竟代替我，背负我十架；"}, {"chord": "G                      C                      Em       D       G     ", "lyric": "      祢舍下祢生命，释放我得自由，喔耶稣，我歌唱因祢为我所做一切！"}], "baseKey": "G"}]}, {"id": "23", "titleEn": "Great Things", "titleCn": "奇妙大工", "meta": {"playlist": "YouTube #24", "keyLabel": "C (或 G 调，原调 B = G 调 Capo 4)", "timeSig": "4/4", "bpm": "102 BPM", "language": "EN + CN (英/中双语)", "credits": "Phil Wickham & Jonas Myrin", "links": "YouTube 敬拜视频  ·  C 调标准和弦谱 PDF"}, "baseKey": "C", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "C                 Csus4    C        C        Csus4    C        Fmaj9", "lyric": "3  2  1  1  | 1  -  2  3  | 3  2  1  1  | 6, -  1  -  (Verse)"}, {"chord": "C                 Am7               F                 G        C", "lyric": "5  5  5  6  5  3 | 5  5  6  5  3 | 4  4  5  4  3  2 | 1  -  -  (Chorus)"}], "baseKey": "C"}, {"label": "Verse 1 & 2 (English — Key: C)", "lines": [{"chord": "C                    Csus4    C     C                    Csus4    C", "lyric": "1. Come let us worship our King, come let us bow at His feet;"}, {"chord": "                    Fmaj9", "lyric": "  He has done great things!"}, {"chord": "C                    Csus4    C     C                    Csus4    C", "lyric": "  See what our Savior has done, see how His love overcomes;"}, {"chord": "                    Fmaj9          Am7                  Gsus4", "lyric": "  He has done great things, He has done great things!"}, {"chord": "C                    Csus4    C     C                    Csus4    C      Fmaj9", "lyric": "2. You've been faithful through every storm, You'll be faithful forevermore, You have done "}], "baseKey": "C"}, {"label": "great things!", "lines": [{"chord": "C                    Csus4    C     C                    Csus4    C      Fmaj9       Am7   ", "lyric": ""}, {"chord": "Gsus4", "lyric": "  And I know You will do it again, for Your promise is Yes and Amen, You will do great "}], "baseKey": "C"}, {"label": "Chorus & Bridge (English)", "lines": [{"chord": "C                                  Am7", "lyric": "O Hero of Heaven, You conquered the grave,"}, {"chord": "                                  F                            C", "lyric": "You free every captive and break every chain, O God, You have done great things!"}, {"chord": "C                                  Am7", "lyric": "We dance in Your freedom, awake and alive,"}, {"chord": "                                  F            G               C", "lyric": "O Jesus our Savior, Your name lifted high, O God, You have done great things!"}, {"chord": "F2                  G               Am7                 Cmaj7/E", "lyric": "[Bridge] Hallelujah, God above it all! Hallelujah, God unshakable!"}, {"chord": "F2                  G                   Am7      G/B     C", "lyric": "        Hallelujah, You have done great things! You've done great things!"}], "baseKey": "C"}, {"label": "中文译词参考（《奇妙大工》）", "lines": [{"chord": "C              Csus4  C       Fmaj9          Am7            Gsus4", "lyric": "[主歌] 来敬拜我们君王，屈膝俯伏祂脚前，祂行了大事！看救主奇妙作为，祂慈爱胜过一切，祂行了大事！"}, {"chord": "C                      Am7                   F              G        C", "lyric": "[副歌] 天上的大能拯救者，祢战胜死亡坟墓，释放被掳者、断开锁链，神啊祢行了大事！"}, {"chord": "C                      Am7                   F              G        C", "lyric": "      在祢自由里欢呼跳舞，苏醒满有生命，高举救主耶稣圣名，神啊祢行了大事！"}], "baseKey": "C"}]}, {"id": "24", "titleEn": "In Your Hands", "titleCn": "在祢手中（双版本：赞美之泉 & 约书亚乐团）", "meta": {"playlist": "待加入 YouTube #25（源自游园会歌单）", "keyLabel": "F (赞美之泉版) / G (约书亚版)", "timeSig": "4/4", "bpm": "66 BPM", "language": "C (同时收录赞美之泉与约书亚两个常用同名敬拜版本)", "credits": "讚美之泉 Stream of Praise (敬拜讚美 07) & 約書亞樂團 Joshua Band", "links": "YouTube 敬拜视频  ·  爱赞美《在祢手中》和弦简谱 | 约书亚版: simplyworship.hk/lyrics/在你手中/"}, "baseKey": "F", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "F        C/E      Dm       Am       Bb       F/A      Gm7      C7", "lyric": "3  3  2  1  | 5, 5, -  5, | 6, 1  2  3  | 2  -  -  0  (赞美之泉版 Verse)"}, {"chord": "F        Bb       C7       F   C/E  Dm7      Am7 D7   Gm7  C7  F", "lyric": "5  5  6  4  | 5  3  -  1  | 2  3  4  2  | 3  2  1  - || (赞美之泉版 Chorus)"}], "baseKey": "F"}, {"label": "版本 A：讚美之泉《在祢手中 In Your Hands》(Key: F，诗篇 16 篇)", "lines": [{"chord": "F              C/E          Dm7          Am7", "lyric": "[主歌] 耶和华我的神，祢是我的神，我的好处不在祢以外；"}, {"chord": "Bb             Am7   Dm7    Gm7          C7", "lyric": "      祢是我的产业，我杯中的分，我所得的祢为我持守。"}, {"chord": "F              Bb           C7     Bb    F      C/E", "lyric": "[副歌] 我将耶和华常摆在我面前，因祢在我右边，我便不致动摇；"}, {"chord": "Dm7            Am7          Bb           Gm7    C7", "lyric": "      我的心欢喜，我的灵快乐，我的肉身也要安然居住。"}, {"chord": "Dm7            Am7   D7     Gm7          C7     F", "lyric": "      在祢面前有满足的喜乐，在祢手中有永远的福乐！"}], "baseKey": "F"}, {"label": "版本 B：約書亞樂團《在祢手中 In Your Hand》(Key: G，赵治德)", "lines": [{"chord": "G2             D/F#     Em7      G/D     C2       G/B      Am7      D7", "lyric": "[主歌] 我愿意将我全心交在祢手中，毫无保留，毫无保留。（x2）"}, {"chord": "Em7            Bm7      C2       G2      C2       D4       E4       E7", "lyric": "[导歌] 生命中一切全是祢所赐给我，赏赐在祢，收取在于祢。"}, {"chord": "A2             Dmaj7    Bm7      E4      F#m      C#m      D2       E7", "lyric": "[副歌] 也许曾渴望拥有，但祢要我慢慢学习放手，在每一分钟；"}, {"chord": "A2             Dmaj7    Bm7      E4      F#m      C#m      D2       E7     A2", "lyric": "      现在我已经不同，生命属祢不属于我，甘愿成为祢手中美好的工作。"}], "baseKey": "G"}]}, {"id": "25", "titleEn": "Trusting in Your Promises", "titleCn": "信靠每一句应许", "meta": {"playlist": "待加入 YouTube #26（源自游园会歌单）", "keyLabel": "E (或 D 调，夹 2 品)", "timeSig": "4/4", "bpm": "70 BPM", "language": "C (中文敬拜诗歌，附和弦简谱)", "credits": "讚美之泉 Stream of Praise (敬拜讚美 22) / 鄭懋柔、游智婷", "links": "YouTube 敬拜视频  ·  爱赞美 《信靠每一句应许》E调和弦简谱"}, "baseKey": "E", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "E        E/G#     A        E        F#m7     A        Bsus4    B", "lyric": "3  3  2  1  | 4  3  2  1  | 2  2  3  4  | 5  -  -  0  (Verse)"}, {"chord": "E                 A        E        A        E/G#     F#m7     B", "lyric": "5  5  6  5  | 4  3  2  1  | 6  6  5  3  | 2  -  -  0  (Chorus)"}, {"chord": "E                 A        C#m7     F#m7     B7       E", "lyric": "5  5  6  5  | 4  3  2  1  | 2  3  4  2  | 1  -  -  0 ||"}], "baseKey": "E"}, {"label": "主歌 Verse (Key: E [D 调和弦于括号内])", "lines": [{"chord": "E              A          E          E            A            Bsus4         B    ", "lyric": "主祢使卑微转为尊贵，使伤心流泪转为笑颜；"}, {"chord": "E                  A            E            A              E/G#       ", "lyric": "患难生忍耐，忍耐生老练，老练生盼望，"}, {"chord": "F#m7               B7           E    ", "lyric": "盼望不至羞愧，就没有失望。"}], "baseKey": "E"}, {"label": "副歌 Chorus", "lines": [{"chord": "E                  A            E    ", "lyric": "心中充满盼望，盼望使眼睛明亮，"}, {"chord": "A                  E/G#         F#m7         Bsus4         B    ", "lyric": "道路虽崎岖，祢与我同行；"}, {"chord": "E                  A            C#m7      ", "lyric": "心中充满盼望，盼望使信心刚强，"}, {"chord": "A                  F#m7         B7           E    ", "lyric": "信靠每一句应许，生命充满亮光！"}], "baseKey": "E"}]}, {"id": "26", "titleEn": "In Christ", "titleCn": "若有人在基督里（双版本：KUA 跨越 & 赞美之泉）", "meta": {"playlist": "待加入 YouTube #27（源自游园会歌单）", "keyLabel": "D / G", "timeSig": "4/4", "bpm": "72 BPM", "language": "C (同时收录 KUA 跨越版与赞美之泉版)", "credits": "KUA ORIGINALS（紀文惠、蔡佳靈）& 讚美之泉 Stream of Praise", "links": "YouTube 敬拜视频  ·  爱赞美《若有人在基督里》和弦简谱"}, "baseKey": "D", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "Bm7      A/C#     D        G        Bm7      A/C#     Em7      A", "lyric": "6, 7, 1  2  | 3  2  1  6, | 6, 7, 1  2  | 3  -  2  -  (KUA Verse)"}, {"chord": "D/F#     G        D/F#     Em7      D/F#     G        Em7  A   D", "lyric": "3  4  5  5  | 3  4  5  5  | 3  4  5  6  | 5  3  2  1 || (KUA Chorus)"}], "baseKey": "D"}, {"label": "版本 A：KUA ORIGINALS《若有人在基督里 / In Christ》(Key: D)", "lines": [{"chord": "Bm7        A/C#     D        D/F#  G      Bm7        A/C#     D      G    Em7    Asus4  A", "lyric": "[主歌] 我来到主座前，生命交由祢掌权；祢心意向我彰显，我愿成为祢荣耀的殿。"}, {"chord": "G          D/F#     Em7      G/A   D      G          D/F#     Em7         Asus4  A", "lyric": "[导歌] 旧事已过，全是新的，因主的爱得以重生；现在活着不再是我，乃是基督在我里面活着。"}, {"chord": "D/F#       G        D/F#           Em7    D          Em7", "lyric": "[副歌] 若有人在基督里，若有人在基督里，他是全新的人，他是全新的人；"}, {"chord": "D/F#       G        D/F#           Em7    A7         D", "lyric": "      我生命全属于祢，我生命全属于祢，因祢为我舍己，因祢为我舍己。"}], "baseKey": "D"}, {"label": "版本 B：讚美之泉经典《若有人在基督里》(Key: G，哥林多后书 5:17)", "lines": [{"chord": "G          D/F#     Em       G/D    C        G/B      Am7      D", "lyric": "[主歌] 若有人在基督里，他就是新造的人，旧事已过，都变成新的了！（x2）"}, {"chord": "G          Bm7      C        D      G        Bm7      C        D", "lyric": "[副歌] 生命因祢而有盼望，心灵因祢而得释放，"}, {"chord": "Em         Bm7      C        G/B    Am7      D7       G", "lyric": "      我要欢呼歌颂赞美祢名，在基督里我是新造的人！"}], "baseKey": "G"}]}, {"id": "27", "titleEn": "10,000 Reasons (Bless the Lord)", "titleCn": "千万个理由（我的灵赞美祢）", "meta": {"playlist": "待加入 YouTube #28（源自游园会歌单）", "keyLabel": "G (C-G-D-Em，原调 G 或 D)", "timeSig": "4/4", "bpm": "73 BPM", "language": "EN + CN (优先英文，附中文《千万个理由》)", "credits": "Matt Redman & Jonas Myrin（中译：祝瑞蓮 / 陳傑瑞）", "links": "YouTube 敬拜视频  ·  赞美歌谱网 （五线谱·简谱·和弦）"}, "baseKey": "G", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "C        G        D/F#     Em7      C        G        Dsus4    D", "lyric": "1  2  3 | 2  1  5, -  3  2 | 1  6, 5, - | 1  2  3  5  3  2 | 2  -  -  (Chorus)"}, {"chord": "C        Em7      C   D    Em7      C        D        G", "lyric": "3  5  6 | 5  3  2  1  3  2 | 1  6, 5, - | 1  2  3  2  1  7, | 1  -  - ||"}], "baseKey": "G"}, {"label": "Chorus (English — Key: G)", "lines": [{"chord": "C               G        D/F#     Em7", "lyric": "Bless the Lord, O my soul, O my soul,"}, {"chord": "C               G        Dsus4    D", "lyric": "Worship His holy name;"}, {"chord": "C               Em7      C   D    Em7", "lyric": "Sing like never before, O my soul,"}, {"chord": "C               D        G", "lyric": "I'll worship Your holy name!"}], "baseKey": "G"}, {"label": "Verse 1, 2 & 3 (English)", "lines": [{"chord": "C                     G                D/F#     Em7    C                  G          Dsus4  ", "lyric": ""}, {"chord": "D", "lyric": "1. The sun comes up, it's a new day dawning, it's time to sing Your song again;"}, {"chord": "C                     G                D/F#     Em7    C                  D          G", "lyric": "  Whatever may pass, and whatever lies before me, let me be singing when the evening "}], "baseKey": "G"}, {"label": "comes.", "lines": [{"chord": "C                     G                D/F#     Em7    C                  G          Dsus4  ", "lyric": ""}, {"chord": "D", "lyric": "2. You're rich in love, and You're slow to anger, Your name is great, and Your heart is "}], "baseKey": "G"}, {"label": "kind;", "lines": [{"chord": "C                     G                D/F#     Em7    C                  D          G", "lyric": "  For all Your goodness I will keep on singing, ten thousand reasons for my heart to find."}, {"chord": "C                     G                D/F#     Em7    C                  G          Dsus4  ", "lyric": ""}, {"chord": "D", "lyric": "3. And on that day when my strength is failing, the end draws near and my time has come;"}, {"chord": "C                     G                D/F#     Em7    C                  D          G", "lyric": "  Still my soul will sing Your praise unending, ten thousand years and then forevermore!"}], "baseKey": "G"}, {"label": "中文版《千万个理由 / 我的灵赞美祢》", "lines": [{"chord": "C              G        D/F#    Em7   C              G        Dsus4   D", "lyric": "[副歌]   颂赞主，我的灵，我的魂，尊崇祂的圣名；"}, {"chord": "C              Em7      C   D   Em7   C              D        G", "lyric": "        尽全心和全力，歌颂祢，我尊崇祢的圣名！"}, {"chord": "C              G        D/F#    Em7   C              G        Dsus4   D", "lyric": "[主歌 1] 太阳升起，新的一天来临，又是时候唱祢的歌；"}, {"chord": "C              G        D/F#    Em7   C              D        G", "lyric": "        无论将要面对是顺境或是逆境，当夜晚来临仍要歌颂祢。"}, {"chord": "C              G        D/F#    Em7   C              G        Dsus4   D", "lyric": "[主歌 2] 丰盛慈爱且不轻易发怒，祢名至高，祢的心宽容；"}, {"chord": "C              G        D/F#    Em7   C              D        G", "lyric": "        因祢的美善不住地歌颂祢，千万个理由我要敬拜祢。"}, {"chord": "C              G        D/F#    Em7   C              D        G", "lyric": "[主歌 3] 那日来临我的力量衰退，生命到尽头的时候来到；我心坚定无止尽歌颂祢，千万年一直到永永远远！"}], "baseKey": "G"}]}, {"id": "28", "titleEn": "How Great Is Our God", "titleCn": "我神真伟大", "meta": {"playlist": "待加入 YouTube #29（源自游园会歌单）", "keyLabel": "G (原调 A = Capo 2)", "timeSig": "4/4", "bpm": "76 BPM", "language": "EN + CN (优先英文，附约书亚中文版)", "credits": "Chris Tomlin, Ed Cash & Jesse Reeves / 約書亞樂團", "links": "YouTube 敬拜视频  ·  CantonHymn / 约书亚《我神真伟大》和弦谱"}, "baseKey": "G", "sections": [{"label": "Lead Line 主旋律和弦简谱导览", "lines": [{"chord": "G                 Em7               C2                Dsus4    D", "lyric": "5, 5, 1  1  3  | 3  2  -  -  | 2  2  3  2  1  | 2  -  -  0  (Verse)"}, {"chord": "G                 Em7               C2                D        G", "lyric": "5  5  6  5  3  | 5  3  -  5  | 6  6  5  3  2  | 2  1  1  - || (Chorus)"}], "baseKey": "G"}, {"label": "Verse 1 & 2 (English — Key: G [Capo 2 for Key of A])", "lines": [{"chord": "G                              Em7", "lyric": "1. The splendor of the King, clothed in majesty,"}, {"chord": "C2                                            Dsus4  D", "lyric": "  Let all the earth rejoice, all the earth rejoice;"}, {"chord": "G                              Em7", "lyric": "  He wraps Himself in light, and darkness tries to hide,"}, {"chord": "C2                                               Dsus4  D", "lyric": "  And trembles at His voice, trembles at His voice."}, {"chord": "G                              Em7", "lyric": "2. Age to age He stands, and time is in His hands,"}, {"chord": "C2                                            Dsus4  D", "lyric": "  Beginning and the end, beginning and the end;"}, {"chord": "G                              Em7", "lyric": "  The Godhead, three in one, Father, Spirit, Son,"}, {"chord": "C2                                            Dsus4  D", "lyric": "  The Lion and the Lamb, the Lion and the Lamb."}], "baseKey": "G"}, {"label": "Chorus & Bridge (English)", "lines": [{"chord": "G                             Em7", "lyric": "How great is our God! Sing with me,"}, {"chord": "C2                   D", "lyric": "How great is our God! And all will see"}, {"chord": "G        Em7     C2       D        G", "lyric": "How great, how great is our God!"}, {"chord": "G                             Em7", "lyric": "[Bridge] Name above all names, worthy of all praise,"}, {"chord": "C2                   D               G", "lyric": "        My heart will sing: How great is our God!"}], "baseKey": "G"}, {"label": "中文版《我神真伟大》（約書亞樂團译词）", "lines": [{"chord": "G                      Em7                  C2                     Dsus4  D", "lyric": "[主歌 1] 尊贵荣耀君王，在全地之上，愿万民都喜乐，全地都喜乐；"}, {"chord": "G                      Em7                  C2                     Dsus4  D", "lyric": "        主祢满有荣光，黑暗都躲藏，万民高声唱，齐来高声唱。"}, {"chord": "G                      Em7                  C2              D      G", "lyric": "[副歌]   我神真伟大，歌颂祢圣名真伟大；全地都看见，我神真伟大！"}, {"chord": "G                      Em7                  C2                     Dsus4  D", "lyric": "[主歌 2] 昔在永在君王，从今直到永远，祢从不曾改变，永存在天地间；"}, {"chord": "G                      Em7                  C2                     Dsus4  D", "lyric": "        祢是三一真神，父子与圣灵，真神的羔羊，全能神羔羊。"}, {"chord": "G                      Em7                  C2              D      G", "lyric": "[桥段]   祢至圣尊名，配受大赞美，全心歌颂：我神真伟大！"}], "baseKey": "G"}]}];
+const CAPO_TABLE = [{"key": "C", "I": "C", "ii": "Dm7", "iii": "Em7", "IV": "Fmaj7", "V": "G / Gsus4", "vi": "Am7", "capo": "不夹 (Open)"}, {"key": "D", "I": "D", "ii": "Em7", "iii": "F#m7", "IV": "G", "V": "A / Asus4", "vi": "Bm7", "capo": "不夹 或 C 调指法夹 2 品"}, {"key": "E", "I": "E", "ii": "F#m7", "iii": "G#m7", "IV": "A2", "V": "B / Bsus4", "vi": "C#m7", "capo": "不夹 或 D 调指法夹 2 品"}, {"key": "F", "I": "F", "ii": "Gm7", "iii": "Am7", "IV": "Bb", "V": "C / C7", "vi": "Dm7", "capo": "D 调指法夹 3 品 或 E 调夹 1 品"}, {"key": "G", "I": "G", "ii": "Am7", "iii": "Bm7", "IV": "C2", "V": "D / Dsus4", "vi": "Em7", "capo": "不夹 (Open)"}, {"key": "Ab", "I": "Ab", "ii": "Bbm7", "iii": "Cm7", "IV": "Db", "V": "Eb / Ebsus4", "vi": "Fm7", "capo": "G 调指法夹 1 品 (Capo 1)"}, {"key": "A", "I": "A", "ii": "Bm7", "iii": "C#m7", "IV": "D2", "V": "E / Esus4", "vi": "F#m7", "capo": "G 调指法夹 2 品 (Capo 2)"}, {"key": "Bb", "I": "Bb", "ii": "Cm7", "iii": "Dm7", "IV": "Eb", "V": "F / Fsus4", "vi": "Gm7", "capo": "G 调指法夹 3 品 (Capo 3)"}];
+
+/* ---------------- chord transposition engine ---------------- */
+const NOTE_INDEX = {
+  'C':0,'B#':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'Fb':4,'F':5,'E#':5,
+  'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11,'Cb':11
+};
+const KEY_LIST = ['C','Db','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+const FLAT_KEYS = new Set(['Db','Eb','F','Ab','Bb']);
+const SHARP_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const FLAT_NAMES  = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+
+const QUALITY = '(?:maj9|maj7|m7b5|7sus4|9sus4|maj|min7|min|dim7|dim|aug|sus4|sus2|add9|add11|m7|m9|m6|m|2|4|6|7|9|11|13)?';
+const CHORD_RE = new RegExp('^([A-G](?:#|b)?)(' + QUALITY + ')(?:/([A-G](?:#|b)?))?$');
+
+function isChordToken(tok){
+  return CHORD_RE.test(tok);
+}
+function transposeNote(note, shift, flats){
+  const base = NOTE_INDEX[note];
+  if (base === undefined) return note;
+  const idx = ((base + shift) % 12 + 12) % 12;
+  return flats ? FLAT_NAMES[idx] : SHARP_NAMES[idx];
+}
+function transposeChordToken(tok, shift, flats){
+  const m = tok.match(CHORD_RE);
+  if (!m) return tok;
+  const root = transposeNote(m[1], shift, flats);
+  const quality = m[2] || '';
+  const bass = m[3] ? ('/' + transposeNote(m[3], shift, flats)) : '';
+  return root + quality + bass;
+}
+
+/* Nashville Number System: scale-degree labels relative to a key, using the
+   conventional accidentals (flat for borrowed ii/iii/vi/vii-area chords, sharp for IV). */
+const NASHVILLE_DEGREE = {0:'1',1:'b2',2:'2',3:'b3',4:'3',5:'4',6:'#4',7:'5',8:'b6',9:'6',10:'b7',11:'7'};
+function nashvilleDegree(note, keyNote){
+  const n = NOTE_INDEX[note], k = NOTE_INDEX[keyNote];
+  if (n === undefined || k === undefined) return note;
+  return NASHVILLE_DEGREE[((n - k) % 12 + 12) % 12];
+}
+function chordToNashvilleToken(tok, keyNote){
+  const m = tok.match(CHORD_RE);
+  if (!m) return tok;
+  const deg = nashvilleDegree(m[1], keyNote);
+  // Nashville numbers always mark minor quality explicitly with "-", even for the
+  // naturally-minor ii/iii/vi/vii degrees (so the chart is unambiguous at a glance).
+  const quality = (m[2] || '').replace(/^m(?!aj)/, '-');
+  const bass = m[3] ? ('/' + nashvilleDegree(m[3], keyNote)) : '';
+  return deg + quality + bass;
+}
+
+// remap every chord-like token in a chord-line string via transformFn, while preserving
+// column alignment with the lyric row below as much as possible (pads/trims the
+// whitespace gap right after a token whose rendered length changed).
+function remapChordLine(line, transformFn){
+  if (!line) return line;
+  const matches = [...line.matchAll(/\S+/g)];
+  let result = '';
+  let cursor = 0;
+  for (const m of matches){
+    const tok = m[0];
+    const start = m.index;
+    if (!isChordToken(tok)) continue;
+    result += line.slice(cursor, start);
+    const newTok = transformFn(tok);
+    result += newTok;
+    cursor = start + tok.length;
+    const diff = newTok.length - tok.length;
+    if (diff !== 0){
+      let j = cursor, wsLen = 0;
+      while (j < line.length && line[j] === ' '){ wsLen++; j++; }
+      if (diff > 0){
+        cursor += Math.min(diff, wsLen);
+      } else {
+        result += ' '.repeat(-diff);
+      }
+    }
+  }
+  result += line.slice(cursor);
+  return result;
+}
+// transpose a chord-line string while preserving column alignment as much as possible
+function transposeChordLine(line, shift, flats){
+  return remapChordLine(line, tok => transposeChordToken(tok, shift, flats));
+}
+// render a chord-line string as Nashville numbers relative to keyNote (numbers stay the
+// same regardless of which key is selected - that's the point of the notation)
+function nashvilleChordLine(line, keyNote){
+  return remapChordLine(line, tok => chordToNashvilleToken(tok, keyNote));
+}
+function wrapChordsHtml(line){
+  return escapeHtml(line).replace(/\S+/g, function(tok){
+    if (tok === '|' || tok === '||' || tok === '-' || tok === '0') return tok;
+    return '<span class="ch">'+tok+'</span>';
+  });
+}
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function keyShift(fromKey, toKey){
+  const a = NOTE_INDEX[fromKey], b = NOTE_INDEX[toKey];
+  if (a === undefined || b === undefined) return 0;
+  return ((b - a) % 12 + 12) % 12;
+}
+function transposeLabelText(label, shift, flats){
+  // relabel "(Key: X ...)" style annotations inside section headers
+  return label.replace(/Key[:：]\s*([A-G](?:#|b)?)/g, function(full, note){
+    return full.replace(note, transposeNote(note, shift, flats));
+  });
+}
+
+/* ---------------- app state / routing ---------------- */
+let fontScale = parseFloat(localStorage.getItem('songbook:fontScale') || '1');
+let chordMode = localStorage.getItem('songbook:chordMode') || 'letters'; // 'letters' | 'number'
+
+function setChordMode(mode){
+  chordMode = mode;
+  localStorage.setItem('songbook:chordMode', mode);
+  route();
+}
+function getSongKey(song){
+  return localStorage.getItem('songbook:key:' + song.id) || song.baseKey;
+}
+function setSongKey(song, key){
+  localStorage.setItem('songbook:key:' + song.id, key);
+}
+function toggleTheme(){
+  const el = document.body;
+  const next = el.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  el.setAttribute('data-theme', next);
+  localStorage.setItem('songbook:theme', next);
+  document.getElementById('themeBtn').textContent = next === 'dark' ? '☀️' : '🌙';
+}
+(function initTheme(){
+  const saved = localStorage.getItem('songbook:theme');
+  if (saved === 'dark'){
+    document.body.setAttribute('data-theme','dark');
+    window.addEventListener('DOMContentLoaded', function(){
+      document.getElementById('themeBtn').textContent = '☀️';
+    });
+  }
+})();
+
+function onSearch(q){
+  renderList(q);
+}
+
+function parseHash(){
+  const h = location.hash.replace(/^#\/?/, '');
+  const parts = h.split('/').filter(Boolean);
+  if (parts[0] === 'song' && parts[1]) return {view:'song', id: parts[1], key: parts[2] || null};
+  if (parts[0] === 'capo') return {view:'capo'};
+  return {view:'list'};
+}
+
+function route(){
+  const r = parseHash();
+  if (r.view === 'song') renderSong(r.id, r.key);
+  else if (r.view === 'capo') renderCapo();
+  else renderList();
+  window.scrollTo(0,0);
+}
+window.addEventListener('hashchange', route);
+
+/* ---------------- views ---------------- */
+function renderList(filter){
+  const app = document.getElementById('app');
+  const q = (filter || document.getElementById('search').value || '').trim().toLowerCase();
+  const items = SONGS.filter(s => {
+    if (!q) return true;
+    return (s.titleEn + ' ' + s.titleCn + ' ' + s.id).toLowerCase().includes(q);
+  });
+  let html = '';
+  if (!items.length){
+    html = '<div class="emptystate">没有找到匹配的歌曲 / No songs match.</div>';
+  } else {
+    html = items.map(s => {
+      const key = getSongKey(s);
+      return `<div class="songcard" onclick="location.hash='#/song/${s.id}'">
+        <div class="num">${s.id}</div>
+        <div class="titles">
+          <div class="en">${escapeHtml(s.titleEn)}</div>
+          <div class="cn">${escapeHtml(s.titleCn)}</div>
+        </div>
+        <div class="tags">
+          <span class="key">${key}</span><br>
+          ${escapeHtml(s.meta.bpm||'')}
+        </div>
+      </div>`;
+    }).join('');
+  }
+  app.innerHTML = html;
+}
+
+function renderSong(id, urlKey){
+  const song = SONGS.find(s => s.id === id);
+  const app = document.getElementById('app');
+  if (!song){ app.innerHTML = '<div class="emptystate">未找到该歌曲</div>'; return; }
+
+  let key = urlKey || getSongKey(song);
+  if (!KEY_LIST.includes(key)) key = song.baseKey;
+  setSongKey(song, key);
+
+  const shift = keyShift(song.baseKey, key);
+  const flats = FLAT_KEYS.has(key);
+
+  const idx = SONGS.findIndex(s => s.id === id);
+  const prev = SONGS[(idx - 1 + SONGS.length) % SONGS.length];
+  const next = SONGS[(idx + 1) % SONGS.length];
+
+  const keyOptions = KEY_LIST.map(k => `<option value="${k}" ${k===key?'selected':''}>${k}</option>`).join('');
+
+  const capoRow = CAPO_TABLE.find(r => r.key === key);
+  const capoHint = capoRow ? `💡 吉他 Capo 建议：${capoRow.capo}` : '';
+
+  const metaChips = [
+    song.meta.playlist ? `<span class="chip">▶ ${escapeHtml(song.meta.playlist)}</span>` : '',
+    song.meta.timeSig ? `<span class="chip">${escapeHtml(song.meta.timeSig)}</span>` : '',
+    song.meta.bpm ? `<span class="chip">${escapeHtml(song.meta.bpm)}</span>` : '',
+    song.meta.language ? `<span class="chip">${escapeHtml(song.meta.language)}</span>` : '',
+    `<span class="chip">原调标注：${escapeHtml(song.meta.keyLabel||song.baseKey)}</span>`,
+  ].join('');
+
+  const sectionsHtml = song.sections.map(sec => {
+    const secLabel = transposeLabelText(sec.label, shift, flats);
+    const linesHtml = sec.lines.map(line => {
+      // Nashville numbers are computed from the section's own original key and are
+      // deliberately invariant to the key picker above - that's the point of the notation.
+      const displayLine = chordMode === 'number'
+        ? nashvilleChordLine(line.chord, sec.baseKey)
+        : transposeChordLine(line.chord, shift, flats);
+      const chordHtml = wrapChordsHtml(displayLine);
+      const lyricHtml = escapeHtml(line.lyric || '');
+      const cls = line.lyric ? 'line' : 'line chordonly';
+      return `<div class="${cls}"><div class="chordrow">${chordHtml}</div><div class="lyricrow">${lyricHtml}</div></div>`;
+    }).join('');
+    return `<div class="section"><div class="seclabel">${escapeHtml(secLabel)}</div>${linesHtml}</div>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="backrow">
+      <button class="iconbtn" onclick="location.hash='#/'">← 列表 List</button>
+      <div class="navbtns">
+        <button class="iconbtn" onclick="location.hash='#/song/${prev.id}'">◀ ${prev.id}</button>
+        <button class="iconbtn" onclick="location.hash='#/song/${next.id}'">${next.id} ▶</button>
+      </div>
+    </div>
+    <div class="songhead">
+      <h1>${song.id}. ${escapeHtml(song.titleEn)}</h1>
+      <div class="cn">${escapeHtml(song.titleCn)}</div>
+    </div>
+    <div class="metarow">${metaChips}</div>
+    <div class="credits">
+      敬拜团队/词曲：${escapeHtml(song.meta.credits||'')}<br>
+      资源直达：${escapeHtml(song.meta.links||'')}
+    </div>
+
+    <div class="keybar">
+      <span class="label">变调 Key:</span>
+      <select onchange="location.hash='#/song/${song.id}/'+this.value">${keyOptions}</select>
+      <button class="iconbtn" onclick="stepKey('${song.id}', -1)">−半音</button>
+      <button class="iconbtn" onclick="stepKey('${song.id}', 1)">+半音</button>
+      <button class="iconbtn" onclick="location.hash='#/song/${song.id}/${song.baseKey}'">还原原调 (${song.baseKey})</button>
+      <div class="fontctrl">
+        <button class="iconbtn" onclick="changeFont(-1)">A−</button>
+        <button class="iconbtn" onclick="changeFont(1)">A+</button>
+      </div>
+      ${capoHint ? `<div class="capo-hint">${capoHint}</div>` : ''}
+      <div class="modebar">
+        <span class="label">显示 Display:</span>
+        <div class="segctrl">
+          <button class="segbtn ${chordMode==='letters'?'active':''}" onclick="setChordMode('letters')">和弦 Letters</button>
+          <button class="segbtn ${chordMode==='number'?'active':''}" onclick="setChordMode('number')">级数 Nashville (1 2- 3- 4 5 6-)</button>
+        </div>
+        ${chordMode==='number' ? '<div class="capo-hint">💡 级数不随变调改变，是乐手通用的移调记谱法 / numbers stay fixed across any key</div>' : ''}
+      </div>
+    </div>
+
+    <div id="chordArea" style="font-size:${fontScale}em">${sectionsHtml}</div>
+
+    <div class="songfoot">
+      <div class="bigbtn" onclick="location.hash='#/song/${prev.id}'">◀ 上一首<br><small>${escapeHtml(prev.titleEn)}</small></div>
+      <div class="bigbtn" onclick="location.hash='#/song/${next.id}'">下一首 ▶<br><small>${escapeHtml(next.titleEn)}</small></div>
+    </div>
+  `;
+}
+
+function stepKey(id, delta){
+  const song = SONGS.find(s => s.id === id);
+  const cur = getSongKey(song);
+  let i = KEY_LIST.indexOf(cur);
+  i = ((i + delta) % 12 + 12) % 12;
+  location.hash = '#/song/' + id + '/' + KEY_LIST[i];
+}
+function changeFont(delta){
+  fontScale = Math.min(1.6, Math.max(0.7, fontScale + delta*0.1));
+  localStorage.setItem('songbook:fontScale', fontScale);
+  const el = document.getElementById('chordArea');
+  if (el) el.style.fontSize = fontScale + 'em';
+}
+
+function renderCapo(){
+  const app = document.getElementById('app');
+  const rows = CAPO_TABLE.map(r => `<tr>
+    <td><b>${r.key}</b></td><td>${r.I}</td><td>${r.ii}</td><td>${r.iii}</td>
+    <td>${r.IV}</td><td>${r.V}</td><td>${r.vi}</td><td>${r.capo}</td>
+  </tr>`).join('');
+  app.innerHTML = `
+    <div class="backrow"><button class="iconbtn" onclick="location.hash='#/'">← 列表 List</button></div>
+    <div class="songhead"><h1>调号级数与 Capo 速查表</h1><div class="cn">Key, Nashville Number & Capo Reference</div></div>
+    <p class="note">供吉他手、键盘手与领唱在现场根据歌手音域快速移调（如《Cornerstone》C/G 调切换、《Goodness of God》《Because He Lives》原调 Ab 与 G 调切换）。</p>
+    <table class="capo">
+      <tr><th>调号 Key</th><th>I</th><th>iim</th><th>iiim</th><th>IV</th><th>V</th><th>vim</th><th>吉他 Capo 建议</th></tr>
+      ${rows}
+    </table>
+  `;
+}
+
+route();
+</script>
+</body>
+</html>
